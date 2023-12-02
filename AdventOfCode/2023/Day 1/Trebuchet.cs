@@ -2,67 +2,67 @@
 
 namespace AdventOfCode._2023.Day_1
 {
-    public sealed class Trebuchet
+    public static class Trebuchet
     {
-        public async Task<int?> CalibrateAndSumAllAsync(
-            IAsyncEnumerable<string> valuesToBeCalibratedAndTotalised,
+        public static IAsyncEnumerable<int?> CalibrateUsingDigitsAsync(IAsyncEnumerable<string> toBeCalibrated) => CalibrateAsync(toBeCalibrated, Token.DIGITS_DEFINITIONS);
+
+        public static IAsyncEnumerable<int?> CalibrateUsingDigitsAndWordsAsync(IAsyncEnumerable<string> toBeCalibrated) => CalibrateAsync(toBeCalibrated, Token.DIGITS_AND_WORDS_DEFINITIONS);
+
+
+
+        private static async IAsyncEnumerable<int?> CalibrateAsync(
+            IAsyncEnumerable<string> toBeCalibrated,
             IEnumerable<TokenDefinition> tokenDefinitions
             )
         {
-            var t = default(int?);
+            var tokenizer = new Tokenizer(tokenDefinitions);
 
-            var parser = new Parser(tokenDefinitions);
-
-            await foreach (var valueToBeCalibrated in valuesToBeCalibratedAndTotalised)
+            await foreach (var valueToBeCalibrated in toBeCalibrated)
             {
-                var calibratedValue = parser.Parse(valueToBeCalibrated);
+                var tokens = tokenizer.Tokenize(valueToBeCalibrated).ToArray();
 
-                if (calibratedValue.HasValue)
+                if (2 > tokens.Length)
                 {
-                    if (t.HasValue) t += calibratedValue.Value;
-                    else t = calibratedValue;
-                }
-            }
+                    yield return default;
+                    continue;
+                };
 
-            return t;
+                var fst = tokens[0];
+                var lst = tokens[^1];
+
+                yield return (fst * 10) + lst;
+            }
         }
 
-        private sealed class Parser(IEnumerable<TokenDefinition> definitions)
+        private sealed class Tokenizer(IEnumerable<TokenDefinition> definitions)
         {
-            public int? Parse(string toBeParsed)
+            public IEnumerable<Token> Tokenize(string toBeParsed)
             {
-                if (string.IsNullOrWhiteSpace(toBeParsed)) return default;
+                if (string.IsNullOrWhiteSpace(toBeParsed)) return Enumerable.Empty<Token>();
 
-                var q = from definition in definitions ?? Enumerable.Empty<TokenDefinition>()
-                        from token in definition.FindTokens(toBeParsed)
-                        orderby token.Index ascending
-                        select token;
-
-                var xs = q.ToArray();
-
-                var fst = xs.Take(1).SingleOrDefault()?.AsNumber();
-                var lst = xs.TakeLast(1).SingleOrDefault()?.AsNumber();
-
-                if (fst.HasValue && lst.HasValue) return (fst.Value * 10) + lst.Value;
-
-                return default;
+                return from definition in definitions ?? Enumerable.Empty<TokenDefinition>()
+                       from token in definition.FindTokens(toBeParsed)
+                       orderby token.Index ascending
+                       select token;
             }
         }
 
         public sealed record Token(string Value, string Name, int Index)
         {
-            public readonly static IEnumerable<TokenDefinition> JUST_SINGLE_DIGITS = new TokenDefinition[] { "[0-9]" };
-            public readonly static IEnumerable<TokenDefinition> DIGITS_AND_WORDS = new TokenDefinition[] { "[0-9]|zero|one|two|three|four|five|six|seven|eight|nine" };
+            public readonly static IEnumerable<TokenDefinition> DIGITS_DEFINITIONS = new TokenDefinition[] { "[0-9]" };
+            public readonly static IEnumerable<TokenDefinition> DIGITS_AND_WORDS_DEFINITIONS = new TokenDefinition[] { "[0-9]|zero|one|two|three|four|five|six|seven|eight|nine" };
 
-            public int AsNumber()
+            public static implicit operator int?(Token token) 
             {
-                if (Value.Length == 1)
-                {
-                    if (char.IsNumber(Value, 0)) return (int)Math.Round(char.GetNumericValue(Value, 0), 0);
+                var v = token.Value;
 
-                    throw new ApplicationException($"None supported token value : {Value}");
+                if (v.Length == 1)
+                {
+                    if (char.IsNumber(token.Value, 0)) return (int)Math.Round(char.GetNumericValue(v, 0), 0);
+
+                    throw new ApplicationException($"None supported token value : {v}");
                 }
-                else return Value switch {
+                else return v switch {
                     "zero" => 0,
                     "one" => 1,
                     "two" => 2,
@@ -73,7 +73,7 @@ namespace AdventOfCode._2023.Day_1
                     "seven" => 7,
                     "eight" => 8,
                     "nine" => 9,
-                    _ => throw new ApplicationException($"None supported token value : {Value}"),
+                    _ => throw new ApplicationException($"None supported token value : {v}"),
                 };
             }
         }
