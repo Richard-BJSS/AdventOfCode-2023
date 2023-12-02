@@ -8,8 +8,6 @@ namespace AdventOfCode._2023.Day_1
 
         public static IAsyncEnumerable<int?> CalibrateUsingDigitsAndWordsAsync(IAsyncEnumerable<string> toBeCalibrated) => CalibrateAsync(toBeCalibrated, Token.DIGITS_AND_WORDS_DEFINITIONS);
 
-
-
         private static async IAsyncEnumerable<int?> CalibrateAsync(
             IAsyncEnumerable<string> toBeCalibrated,
             IEnumerable<TokenDefinition> tokenDefinitions
@@ -45,9 +43,9 @@ namespace AdventOfCode._2023.Day_1
                        orderby token.Index ascending
                        select token;
             }
-        }
+        }   
 
-        public sealed record Token(string Value, string Name, int Index)
+        private sealed record Token(string Value, string Name, int Index)
         {
             public readonly static IEnumerable<TokenDefinition> DIGITS_DEFINITIONS = new TokenDefinition[] { "[0-9]" };
             public readonly static IEnumerable<TokenDefinition> DIGITS_AND_WORDS_DEFINITIONS = new TokenDefinition[] { "[0-9]|zero|one|two|three|four|five|six|seven|eight|nine" };
@@ -78,7 +76,7 @@ namespace AdventOfCode._2023.Day_1
             }
         }
 
-        public sealed class TokenDefinition(string pattern)
+        private sealed class TokenDefinition(string pattern)
         {
             private readonly Regex _L2Rregex = new(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
             private readonly Regex _R2Lregex = new(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.RightToLeft);

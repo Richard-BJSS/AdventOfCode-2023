@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -9,12 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="2023\Day 1\Calibration-Input-File.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>
