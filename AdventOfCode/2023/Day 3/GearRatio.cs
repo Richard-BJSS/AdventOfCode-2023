@@ -17,8 +17,6 @@ namespace AdventOfCode._2023.Day_3.GearRatio
             var parts = new List<EnginePart>();
             var digits = new List<char>(cols);
 
-            var discards = new List<string>();
-
             for (var y = 0; y < rows; y++)
             {
                 for (var x = 0; x < cols; x++)
@@ -37,14 +35,11 @@ namespace AdventOfCode._2023.Day_3.GearRatio
                         var adjacentCellsContainingSymbol = adjacentCellsInBounds.Where(c => IsValidSymbol(matrix[c.y][c.x]));
 
                         if (adjacentCellsContainingSymbol.Any()) parts.Add(candidatePartNum);
-                        else discards.Add($"Discarding {candidatePartNum} on row {y + 1}");
-
+            
                         digits.Clear();
                     }
                 }
             }
-
-            File.WriteAllLines("Discards.txt", discards.ToArray());
 
             return new (Parts: parts);
         }
@@ -68,5 +63,63 @@ namespace AdventOfCode._2023.Day_3.GearRatio
         public static implicit operator int(EnginePart enginePart) => enginePart.PartNumber;
         public static implicit operator EnginePart(int partNumber) => new(PartNumber: partNumber);
     }
+
+    public sealed record Gears(IEnumerable<GearRatio> Ratios)
+    {
+        public static Gears FromSchematic(IEnumerable<string> rawEngineSchematic)
+        {
+            var matrix = rawEngineSchematic
+                .Select((s, y) => s
+                    .Select((c, x) => (
+                        Value: c, 
+                        x,
+                        y 
+                        ))
+                    .ToArray())
+                .ToArray();
+
+            var symbols = from c in matrix
+                          from a in c
+                          where a.Value == '*'
+                          select (a.x, a.y, parts: new Dictionary<(int x, int y), int>());
+
+            var adjacentDigits = from s in symbols
+                                 from d in new[] { (x: -1, y: -1), (x: 0, y: -1), (x: 1, y: -1), (x: -1, y: 0), (x: 1, y: 0), (x: -1, y: 1), (x: 0, y: 1), (x: 1, y: 1) }
+                                 let a = (x: s.x + d.x, y: s.y + d.y)
+                                 where 0 <= a.x && 0 <= a.y && a.x < matrix[0].Length && a.y < matrix.Length
+                                 let ac = matrix[a.y][a.x]
+                                 where char.IsDigit(ac.Value)
+                                 group ac by (symbol: s, a.y) into xs 
+                                 select xs;
+
+            var dict = adjacentDigits.ToDictionary(c => c.Key, c => c);
+
+            foreach (var kvp in dict)
+                foreach (var (c, x, y) in kvp.Value)
+                {
+                    var r = matrix[y];
+                    var symbol = kvp.Key.symbol;
+
+                    int s = x, e = s;
+
+                    while (s >= 0 && char.IsDigit(r[s].Value)) { s--; }; s += 1;
+
+                    if (symbol.parts.ContainsKey((s, y))) continue;
+
+                    while (e < r.Length && char.IsDigit(r[e].Value)) { e++; };
+                    
+                    var partNumber = int.Parse(new string(r[(s)..e].Select(_ => _.Value).ToArray()));
+
+                    symbol.parts[(s, y)] = partNumber;
+                }
+
+            var gears = dict.Keys.Where(k => k.symbol.parts.Count > 1).Select(k => k.symbol).Distinct();
+            var gearRatios = gears.Select(g => new GearRatio(g.parts.Aggregate(1, (p, r) => p * r.Value)));
+
+            return new(gearRatios);
+        }
+    }
+
+    public sealed record GearRatio(int Ratio);
 
 }

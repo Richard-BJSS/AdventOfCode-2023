@@ -27,7 +27,7 @@ namespace AdventOfCode.Tests._2023.Day_3
         }
 
         [TestMethod]
-        public async Task EngineParts_ExtractedCorrectlyFromSchematicDocument() 
+        public async Task EngineParts_ExtractedCorrectlyFromSchematicFile() 
         {
             using var cts = new CancellationTokenSource(delay: TimeSpan.FromSeconds(5));
 
@@ -130,6 +130,39 @@ namespace AdventOfCode.Tests._2023.Day_3
             var engine = Engine.FromSchematic(rawEngineSchematic);
 
             Assert.AreEqual(100, engine.Parts.Sum(p => p.PartNumber));
+        }
+
+        [TestMethod]
+        public void EngineParts_ExtractedGearRatiosFromSchematic()
+        {
+            var rawEngineSchematic = new[] {
+                "467..114..",
+                "...*......",
+                "..35..633.",
+                "......#...",
+                "617*......",
+                ".....+.58.",
+                "..592.....",
+                "......755.",
+                "...$.*....",
+                ".664.598.."
+            };
+
+            var gears = Gears.FromSchematic(rawEngineSchematic);
+
+            Assert.AreEqual(16345 + 451490, gears.Ratios.Sum(p => p.Ratio));
+        }
+
+        [TestMethod]
+        public async Task EngineParts_ExtractedGearsRatiosFromSchematicFile()
+        {
+            using var cts = new CancellationTokenSource(delay: TimeSpan.FromSeconds(5));
+
+            var rawEngineSchematic = await File.ReadAllLinesAsync("2023/Day 3/Engine-Schematic-File.txt", cts.Token);
+
+            var gears = Gears.FromSchematic(rawEngineSchematic);
+
+            Assert.AreEqual(80703636, gears.Ratios.Sum(p => p.Ratio));
         }
     }
 }
