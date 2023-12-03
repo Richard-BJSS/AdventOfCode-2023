@@ -1,4 +1,4 @@
-﻿using AdventOfCode._2023.Day_2;
+﻿using AdventOfCode._2023.Day_2.CubeConundrum;
 
 namespace AdventOfCode.Tests._2023.Day_2
 {
@@ -13,9 +13,9 @@ namespace AdventOfCode.Tests._2023.Day_2
         {
             const int red = 12, green = 13, blue = 14;
 
-            var bag = new CubeConundrum.Bag(red, green, blue);
+            var bag = new Bag(red, green, blue);
 
-            var games = new CubeConundrum.Game[] {
+            var games = new Game[] {
                 new(1, new(Blue:  3, Red:   4),            new(Red:   1, Green: 2, Blue:  6),  new(Green: 2)),
                 new(2, new(Blue:  1, Green: 2),            new(Green: 3, Blue:  4, Red:   1),  new(Green: 1, Blue: 1)),
                 new(3, new(Green: 8, Blue:  6, Red:   20), new(Blue:  5, Red:   4, Green: 13), new(Green: 5, Red:  1)),
@@ -40,7 +40,7 @@ namespace AdventOfCode.Tests._2023.Day_2
         [TestMethod]
         public void Parse_CorrectlyParsesCubesRecord()
         {
-            var cubes = new Dictionary<string, CubeConundrum.Cubes>
+            var cubes = new Dictionary<string, Cubes>
             {
                 { "3 blue, 4 red", new(Red: 4, Green: 0, Blue: 3)},
                 { "1 red, 2 green, 6 blue", new(Red: 1, Green: 2, Blue: 6)},
@@ -61,7 +61,7 @@ namespace AdventOfCode.Tests._2023.Day_2
 
             foreach (var kvp in cubes)
             {
-                var actualResult = CubeConundrum.Cubes.Parse(kvp.Key);
+                var actualResult = Cubes.Parse(kvp.Key);
 
                 Assert.AreEqual(kvp.Value, actualResult);
             }
@@ -70,7 +70,7 @@ namespace AdventOfCode.Tests._2023.Day_2
         [TestMethod]
         public async Task ParseAsync_CorrectlyParsesGameRecord()
         {
-            var gamesRecord = new Dictionary<string, CubeConundrum.Game>
+            var gamesRecord = new Dictionary<string, Game>
             {
                 { "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green", new(1, [new(Blue: 3, Red: 4), new(Red: 1, Green: 2, Blue: 6), new(Green: 2)]) },
                 { "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue", new(2, [new(Blue: 1, Green: 2), new(Green: 3, Blue: 4, Red: 1), new(Green: 1, Blue: 1)]) },
@@ -83,7 +83,7 @@ namespace AdventOfCode.Tests._2023.Day_2
             {
                 var kvp = gamesRecord.ElementAt(n);
 
-                var actualResult = await CubeConundrum.Game.ParseAsync(kvp.Key);
+                var actualResult = await Game.ParseAsync(kvp.Key);
 
                 Assert.AreEqual(n + 1, actualResult.Id);
                 Assert.IsTrue(Enumerable.SequenceEqual(kvp.Value.CubesRevealed, actualResult.CubesRevealed));
@@ -99,9 +99,9 @@ namespace AdventOfCode.Tests._2023.Day_2
 
             const int red = 12, green = 13, blue = 14;
 
-            var bag = new CubeConundrum.Bag(red, green, blue);
+            var bag = new Bag(red, green, blue);
 
-            var games = rawGameHistory.SelectAwait(CubeConundrum.Game.ParseAsync);
+            var games = rawGameHistory.SelectAwait(Game.ParseAsync);
 
             var validGames = bag.EliminateImpossibleGamesAsync(games);
 
@@ -113,7 +113,7 @@ namespace AdventOfCode.Tests._2023.Day_2
         [TestMethod]
         public async Task CalculateMinimumCubesRequiredForGame_CorrectlyDeterminesMinimumBagContent()
         {
-            var gameRecords = new Dictionary<string, CubeConundrum.Cubes>
+            var gameRecords = new Dictionary<string, Cubes>
             {
                 { "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green", new(Red: 4, Green: 2, Blue: 6) },
                 { "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue", new(Red: 1, Green: 3, Blue: 4) },
@@ -124,9 +124,9 @@ namespace AdventOfCode.Tests._2023.Day_2
 
             foreach (var kvp in gameRecords) 
             {
-                var game = await CubeConundrum.Game.ParseAsync(kvp.Key);
+                var game = await Game.ParseAsync(kvp.Key);
 
-                var minCubesRequiredForGame = await CubeConundrum.Game.CalculateMinimumCubesRequiredForGameAsync(game);
+                var minCubesRequiredForGame = await Game.CalculateMinimumCubesRequiredForGameAsync(game);
 
                 Assert.AreEqual(kvp.Value, minCubesRequiredForGame);
             }
@@ -146,9 +146,9 @@ namespace AdventOfCode.Tests._2023.Day_2
 
             foreach (var kvp in gameRecords)
             {
-                var game = await CubeConundrum.Game.ParseAsync(kvp.Key);
+                var game = await Game.ParseAsync(kvp.Key);
 
-                var power = (await CubeConundrum.Game.CalculateMinimumCubesRequiredForGameAsync(game)).Power;
+                var power = (await Game.CalculateMinimumCubesRequiredForGameAsync(game)).Power;
 
                 Assert.AreEqual(kvp.Value, power);
             }
@@ -161,9 +161,9 @@ namespace AdventOfCode.Tests._2023.Day_2
 
             var rawGameHistory = File.ReadLinesAsync("2023/Day 2/Game-History-File.txt", cts.Token);
 
-            var games = rawGameHistory.SelectAwait(CubeConundrum.Game.ParseAsync);
+            var games = rawGameHistory.SelectAwait(Game.ParseAsync);
 
-            var minCubeSetPerGame = games.SelectAwait(CubeConundrum.Game.CalculateMinimumCubesRequiredForGameAsync);
+            var minCubeSetPerGame = games.SelectAwait(Game.CalculateMinimumCubesRequiredForGameAsync);
 
             var sumOfPower = await minCubeSetPerGame.SumAsync(c => c.Power);
 

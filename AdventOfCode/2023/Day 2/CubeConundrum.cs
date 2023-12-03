@@ -1,88 +1,86 @@
-﻿namespace AdventOfCode._2023.Day_2
+﻿namespace AdventOfCode._2023.Day_2.CubeConundrum
 {
-    public static class CubeConundrum
+    public sealed record Cubes(int Red = 0, int Green = 0, int Blue = 0)
     {
-        public sealed record Cubes(int Red = 0, int Green = 0, int Blue = 0)
+        public int Count => Red + Green + Blue;
+
+        public int Power => Red * Green * Blue;
+
+        public static Cubes Parse(string s)
         {
-            public int Count => Red + Green + Blue;
+            if (string.IsNullOrWhiteSpace(s)) throw new ApplicationException($"Unable to parse {s}");
 
-            public int Power => Red * Green * Blue;
+            var rawReveals = s.Split(',');
 
-            public static Cubes Parse(string s) 
+            int r = 0, g = 0, b = 0;
+
+            foreach (var rawReveal in rawReveals)
             {
-                if (string.IsNullOrWhiteSpace(s)) throw new ApplicationException($"Unable to parse {s}");
+                if (rawReveal.Contains("red")) r = int.Parse(rawReveal[..rawReveal.IndexOf('r')]);
+                if (rawReveal.Contains("green")) g = int.Parse(rawReveal[..rawReveal.IndexOf('g')]);
+                if (rawReveal.Contains("blue")) b = int.Parse(rawReveal[..rawReveal.IndexOf('b')]);
+            }
 
-                var rawReveals = s.Split(',');
+            return new(Red: r, Green: g, Blue: b);
+        }
+    }
 
-                int r = 0, g = 0, b = 0;
+    public sealed record Bag(Cubes Cubes)
+    {
+        public Bag(int red = 0, int green = 0, int blue = 0) : this(new Cubes(red, green, blue)) { }
 
-                foreach (var rawReveal in rawReveals)
+        public async IAsyncEnumerable<Game> EliminateImpossibleGamesAsync(IAsyncEnumerable<Game> gamesToValidate)
+        {
+            if (gamesToValidate is null) yield break;
+
+            var numberOfCubesInThisBag = Cubes.Count;
+
+            await foreach (var game in gamesToValidate)
+            {
+                var validReveals = 0;
+
+                foreach (var reveal in game.CubesRevealed)
                 {
-                    if (rawReveal.Contains("red"))   r = int.Parse(rawReveal[..rawReveal.IndexOf('r')]);
-                    if (rawReveal.Contains("green")) g = int.Parse(rawReveal[..rawReveal.IndexOf('g')]);
-                    if (rawReveal.Contains("blue"))  b = int.Parse(rawReveal[..rawReveal.IndexOf('b')]);
+                    if (numberOfCubesInThisBag < reveal.Count) break;
+
+                    if (reveal.Red > Cubes.Red) break;
+                    if (reveal.Green > Cubes.Green) break;
+                    if (reveal.Blue > Cubes.Blue) break;
+
+                    validReveals++;
                 }
 
-                return new(Red: r, Green: g, Blue: b);
+                if (validReveals == game.CubesRevealed.Length) yield return game;
             }
         }
+    }
 
-        public sealed record Bag(Cubes Cubes)
+    public sealed record Game(int Id, params Cubes[] CubesRevealed)
+    {
+        public static ValueTask<Game> ParseAsync(string s)
         {
-            public Bag(int red = 0, int green = 0, int blue = 0) : this(new Cubes(red, green, blue)) { }
+            if (string.IsNullOrWhiteSpace(s)) throw new ApplicationException($"Unable to parse {s}");
 
-            public async IAsyncEnumerable<Game> EliminateImpossibleGamesAsync(IAsyncEnumerable<Game> gamesToValidate)
-            {
-                if (gamesToValidate is null) yield break;
+            var idxOfColon = s.IndexOf(':');
 
-                var numberOfCubesInThisBag = Cubes.Count;
+            var rawGameId = s["Game ".Length..idxOfColon];
 
-                await foreach (var game in gamesToValidate)
-                {
-                    var validReveals = 0;
+            var rawReveals = s.Substring(idxOfColon + 2).Split(';');
 
-                    foreach (var reveal in game.CubesRevealed)
-                    {
-                        if (numberOfCubesInThisBag < reveal.Count) break;
+            var reveals = rawReveals.Select(Cubes.Parse).ToArray();
 
-                        if (reveal.Red > Cubes.Red) break;
-                        if (reveal.Green > Cubes.Green) break;
-                        if (reveal.Blue > Cubes.Blue) break;
+            var gameId = int.Parse(rawGameId);
 
-                        validReveals++;
-                    }
-
-                    if (validReveals == game.CubesRevealed.Length) yield return game;
-                }
-            }
+            return new(new Game(Id: gameId, CubesRevealed: reveals));
         }
 
-        public sealed record Game(int Id, params Cubes[] CubesRevealed)
+        public static ValueTask<Cubes> CalculateMinimumCubesRequiredForGameAsync(Game game)
         {
-            public static ValueTask<Game> ParseAsync(string s)
-            {
-                if (string.IsNullOrWhiteSpace(s)) throw new ApplicationException($"Unable to parse {s}");
+            var r = game.CubesRevealed.Max(c => c.Red);
+            var g = game.CubesRevealed.Max(c => c.Green);
+            var b = game.CubesRevealed.Max(c => c.Blue);
 
-                var idxOfColon = s.IndexOf(':');
-
-                var rawGameId = s["Game ".Length..idxOfColon];
-
-                var rawReveals = s.Substring(idxOfColon + 2).Split(';');
-
-                var reveals = rawReveals.Select(Cubes.Parse).ToArray();
-
-                var gameId = int.Parse(rawGameId);
-
-                return new(new Game(Id: gameId, CubesRevealed: reveals));            }
-
-            public static ValueTask<Cubes> CalculateMinimumCubesRequiredForGameAsync(Game game)
-            {
-                var r = game.CubesRevealed.Max(c => c.Red);
-                var g = game.CubesRevealed.Max(c => c.Green);
-                var b = game.CubesRevealed.Max(c => c.Blue);
-
-                return ValueTask.FromResult(new Cubes(Red: r, Green: g, Blue: b));
-            }
+            return ValueTask.FromResult(new Cubes(Red: r, Green: g, Blue: b));
         }
     }
 }
