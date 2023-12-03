@@ -56,7 +56,7 @@ namespace AdventOfCode._2023.Day_1
 
                 if (v.Length == 1)
                 {
-                    if (char.IsNumber(token.Value, 0)) return (int)Math.Round(char.GetNumericValue(v, 0), 0);
+                    if (char.IsNumber(token.Value, 0)) return (int)(char.GetNumericValue(v, 0));
 
                     throw new ApplicationException($"None supported token value : {v}");
                 }

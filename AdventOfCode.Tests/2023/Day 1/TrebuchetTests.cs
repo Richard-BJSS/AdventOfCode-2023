@@ -2,6 +2,9 @@
 
 namespace AdventOfCode.Tests._2023.Day_1
 {
+    /// <summary>
+    /// https://adventofcode.com/2023/day/1
+    /// </summary>
     [TestClass]
     public sealed class TrebuchetTests
     {
