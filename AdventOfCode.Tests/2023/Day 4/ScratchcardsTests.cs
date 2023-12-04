@@ -43,5 +43,35 @@ namespace AdventOfCode.Tests._2023.Day_4
 
             Assert.AreEqual(21558, sumOfPoints);
         }
+
+        [TestMethod]
+        public async Task ScratchCard_RollsUpWinningCards()
+        {
+            var rawScratchcards = _rawScratchcards.ToAsyncEnumerable();
+
+            var scratchcards = await rawScratchcards.SelectAwait(Scratchcard.ParseAsync).ToDictionaryAsync(s => s.CardIdx, s => s);
+
+            var expandedCards = scratchcards.Values.SelectMany(sc => sc.ExpandToIncludeExtraCardsWon(scratchcards));
+
+            var expandedCardCount = expandedCards.Count();
+
+            Assert.AreEqual(30, expandedCardCount);
+        }
+
+        [TestMethod]
+        public async Task ScratchCard_RollsUpWinningCardsInFile()
+        {
+            using var cts = new CancellationTokenSource(delay: TimeSpan.FromSeconds(5));
+
+            var rawScratchcards = File.ReadLinesAsync("2023/Day 4/Scratchcard-File.txt", cts.Token);
+
+            var scratchcards = await rawScratchcards.SelectAwait(Scratchcard.ParseAsync).ToDictionaryAsync(s => s.CardIdx, s => s);
+
+            var expandedCards = scratchcards.Values.SelectMany(sc => sc.ExpandToIncludeExtraCardsWon(scratchcards));
+
+            var expandedCardCount = expandedCards.Count();
+
+            Assert.AreEqual(10425665, expandedCardCount);
+        }
     }
 }
