@@ -34,10 +34,9 @@
     <None Update="2023\Day 4\Scratchcard-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="2023\Day 5\" />
+    <None Update="2023\Day 5\Almanac-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
