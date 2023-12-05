@@ -50,9 +50,9 @@ namespace AdventOfCode.Tests._2023.Day_5
         {
             var rawAlmanac = AlmanacTests.rawAlmanac.ToAsyncEnumerable();
 
-            var almanac = await Almanac.ParseAsync(rawAlmanac);
+            var almanac = await Almanac.ParseV1Async(rawAlmanac);
 
-            var actualSoilId = almanac.TryFindInCategory(seedId, Almanac.Categories.SeedToSoil);
+            var actualSoilId = almanac.FindInCategory(seedId, Almanac.Categories.SeedToSoil);
 
             Assert.AreEqual(expectedSoilId, actualSoilId);
         }
@@ -66,16 +66,16 @@ namespace AdventOfCode.Tests._2023.Day_5
         {
             var rawAlmanac = AlmanacTests.rawAlmanac.ToAsyncEnumerable();
 
-            var almanac = await Almanac.ParseAsync(rawAlmanac);
+            var almanac = await Almanac.ParseV1Async(rawAlmanac);
 
-            var soilId = almanac.TryFindInCategory(seedId, Almanac.Categories.SeedToSoil);
-            var fertId = almanac.TryFindInCategory(soilId, Almanac.Categories.SoilToFertiliser);
-            var watrId = almanac.TryFindInCategory(fertId, Almanac.Categories.FertiliserToWater);
-            var lghtId = almanac.TryFindInCategory(watrId, Almanac.Categories.WaterToLight);
-            var tempId = almanac.TryFindInCategory(lghtId, Almanac.Categories.LightToTemperature);
-            var humdId = almanac.TryFindInCategory(tempId, Almanac.Categories.TemperatureToHumidity);
+            var soilId = almanac.FindInCategory(seedId, Almanac.Categories.SeedToSoil);
+            var fertId = almanac.FindInCategory(soilId, Almanac.Categories.SoilToFertiliser);
+            var watrId = almanac.FindInCategory(fertId, Almanac.Categories.FertiliserToWater);
+            var lghtId = almanac.FindInCategory(watrId, Almanac.Categories.WaterToLight);
+            var tempId = almanac.FindInCategory(lghtId, Almanac.Categories.LightToTemperature);
+            var humdId = almanac.FindInCategory(tempId, Almanac.Categories.TemperatureToHumidity);
 
-            var actualLocationId = almanac.TryFindInCategory(humdId, Almanac.Categories.HumidityToLocation);
+            var actualLocationId = almanac.FindInCategory(humdId, Almanac.Categories.HumidityToLocation);
 
             Assert.AreEqual(expectedLocationId, actualLocationId);
         }
@@ -86,19 +86,19 @@ namespace AdventOfCode.Tests._2023.Day_5
         {
             var rawAlmanac = AlmanacTests.rawAlmanac.ToAsyncEnumerable();
 
-            var almanac = await Almanac.ParseAsync(rawAlmanac);
+            var almanac = await Almanac.ParseV1Async(rawAlmanac);
 
             var actualLocationId = long.MaxValue;
 
             foreach (var seedId in seedIds)
             {
-                var soilId = almanac.TryFindInCategory(seedId, Almanac.Categories.SeedToSoil);
-                var fertId = almanac.TryFindInCategory(soilId, Almanac.Categories.SoilToFertiliser);
-                var watrId = almanac.TryFindInCategory(fertId, Almanac.Categories.FertiliserToWater);
-                var lghtId = almanac.TryFindInCategory(watrId, Almanac.Categories.WaterToLight);
-                var tempId = almanac.TryFindInCategory(lghtId, Almanac.Categories.LightToTemperature);
-                var humdId = almanac.TryFindInCategory(tempId, Almanac.Categories.TemperatureToHumidity);
-                var locnId = almanac.TryFindInCategory(humdId, Almanac.Categories.HumidityToLocation);
+                var soilId = almanac.FindInCategory(seedId, Almanac.Categories.SeedToSoil);
+                var fertId = almanac.FindInCategory(soilId, Almanac.Categories.SoilToFertiliser);
+                var watrId = almanac.FindInCategory(fertId, Almanac.Categories.FertiliserToWater);
+                var lghtId = almanac.FindInCategory(watrId, Almanac.Categories.WaterToLight);
+                var tempId = almanac.FindInCategory(lghtId, Almanac.Categories.LightToTemperature);
+                var humdId = almanac.FindInCategory(tempId, Almanac.Categories.TemperatureToHumidity);
+                var locnId = almanac.FindInCategory(humdId, Almanac.Categories.HumidityToLocation);
 
                 if (locnId < actualLocationId) actualLocationId = locnId;
             }
@@ -107,30 +107,31 @@ namespace AdventOfCode.Tests._2023.Day_5
         }
 
         [TestMethod]
-        public async Task Almanac_CorrectlyFindsClosestLocationFromSeedsInFile()
+        public async Task Almanac_CorrectlyFindsClosestLocationV1FromSeedsInFile()
         {
             using var cts = new CancellationTokenSource(delay: TimeSpan.FromSeconds(5));
 
             var rawAlmanac = File.ReadLinesAsync("2023/Day 5/Almanac-File.txt", cts.Token);
 
-            var almanac = await Almanac.ParseAsync(rawAlmanac);
+            var almanac = await Almanac.ParseV1Async(rawAlmanac);
 
-            var actualLocationId = long.MaxValue;
-
-            foreach (var seedId in almanac.SeedsToBePlanted)
-            {
-                var soilId = almanac.TryFindInCategory(seedId, Almanac.Categories.SeedToSoil);
-                var fertId = almanac.TryFindInCategory(soilId, Almanac.Categories.SoilToFertiliser);
-                var watrId = almanac.TryFindInCategory(fertId, Almanac.Categories.FertiliserToWater);
-                var lghtId = almanac.TryFindInCategory(watrId, Almanac.Categories.WaterToLight);
-                var tempId = almanac.TryFindInCategory(lghtId, Almanac.Categories.LightToTemperature);
-                var humdId = almanac.TryFindInCategory(tempId, Almanac.Categories.TemperatureToHumidity);
-                var locnId = almanac.TryFindInCategory(humdId, Almanac.Categories.HumidityToLocation);
-
-                if (locnId < actualLocationId) actualLocationId = locnId;
-            }
+            var actualLocationId = almanac.FindClosestLocationFromSeeds();
 
             Assert.AreEqual(214922730, actualLocationId);
+        }
+
+        [TestMethod]
+        public async Task Almanac_CorrectlyFindsClosestLocationV2FromSeedsInFile()
+        {
+            using var cts = new CancellationTokenSource(delay: TimeSpan.FromSeconds(5));
+
+            var rawAlmanac = File.ReadLinesAsync("2023/Day 5/Almanac-File.txt", cts.Token);
+
+            var almanac = await Almanac.ParseV2Async(rawAlmanac);
+
+            var actualLocationId = almanac.FindClosestLocationFromSeeds();
+
+            Assert.AreEqual(148041808, actualLocationId);
         }
     }
 }

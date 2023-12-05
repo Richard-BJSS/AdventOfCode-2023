@@ -2,7 +2,7 @@
 
 namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
 {
-    public partial class Almanac(long[] seedsToBePlanted, long[][][] categoryMaps)
+    public partial class Almanac((long StartingSeedId, long Range)[] seedsToBePlanted, long[][][] categoryMaps)
     {
         public enum Categories
         {
@@ -17,11 +17,12 @@ namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
 
         [GeneratedRegex("[0-9]+", RegexOptions.Compiled)] private static partial Regex _regex();
 
-        public long[] SeedsToBePlanted => seedsToBePlanted;
+        public static Task<Almanac> ParseV1Async(IAsyncEnumerable<string> rawAlmanac) => ParseAsync(rawAlmanac, ParseSeedsV1);
+        public static Task<Almanac> ParseV2Async(IAsyncEnumerable<string> rawAlmanac) => ParseAsync(rawAlmanac, ParseSeedsV2);
 
-        public static async Task<Almanac> ParseAsync(IAsyncEnumerable<string> rawAlmanac)
+        private static async Task<Almanac> ParseAsync(IAsyncEnumerable<string> rawAlmanac, Func<string, (long, long)[]> parser)
         {
-            var seeds = Array.Empty<long>();
+            var seeds = default((long, long)[]);
 
             var maps = new long[7][][];
 
@@ -35,7 +36,7 @@ namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
 
                 if (rawRow.StartsWith("seeds: "))
                 {
-                    seeds = rawRow[7..].Split(' ').Select(long.Parse).ToArray();
+                    seeds = parser(rawRow[7..]);
                     continue;
                 }
                 else if (rawRow == "seed-to-soil map:") { x = 0; y = 0; }
@@ -64,10 +65,14 @@ namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
                 }
             }
 
-            return new(seeds,maps);
+            return new(seeds, maps);
         }
 
-        public long TryFindInCategory(long id, Categories category)
+        private static (long, long)[] ParseSeedsV1(string rawSeeds) => rawSeeds.Split(' ').Select(s => (long.Parse(s), 1L)).ToArray();
+
+        private static (long, long)[] ParseSeedsV2(string rawSeeds) => rawSeeds.Split(' ').Chunk(2).Select(c => (long.Parse(c[0]), long.Parse(c[1]))).ToArray();
+
+        public long FindInCategory(long id, Categories category)
         {
             var x = (int)category;
 
@@ -94,6 +99,34 @@ namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
             }
 
             return id;
+        }
+
+        public long FindClosestLocationFromSeeds()
+        {
+            var actualLocationId = long.MaxValue;
+
+            var seedIds = YieldSeedIds(seedsToBePlanted);
+
+            foreach (var seedId in seedIds)
+            {
+                var soilId = FindInCategory(seedId, Almanac.Categories.SeedToSoil);
+                var fertId = FindInCategory(soilId, Almanac.Categories.SoilToFertiliser);
+                var watrId = FindInCategory(fertId, Almanac.Categories.FertiliserToWater);
+                var lghtId = FindInCategory(watrId, Almanac.Categories.WaterToLight);
+                var tempId = FindInCategory(lghtId, Almanac.Categories.LightToTemperature);
+                var humdId = FindInCategory(tempId, Almanac.Categories.TemperatureToHumidity);
+                var locnId = FindInCategory(humdId, Almanac.Categories.HumidityToLocation);
+
+                if (locnId < actualLocationId) actualLocationId = locnId;
+            }
+
+            return actualLocationId;
+        }
+
+        private static IEnumerable<long> YieldSeedIds((long, long)[] seedsToBePlanted)
+        {
+            foreach (var (seedId, length) in seedsToBePlanted)
+                for (var n = 0L; n < length; n++) yield return seedId + n;
         }
     }
 }
