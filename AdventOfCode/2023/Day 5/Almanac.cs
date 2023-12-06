@@ -2,6 +2,14 @@
 
 namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
 {
+
+    // Looks like we're reaching the limits of what we can accomplish with brute force calculations.
+    // Probably worth revisiting this one to use interval logic instead, which will be more difficult to
+    // read (if you are unfmailiar with the maths) but much faster to execute.
+    //
+    // Presume in the days ahead I'll have to code up some useful types/alogs that can be retrofitted to this 
+    // solution when time allows.  Not sure if System.Range can be used so will explore
+
     public partial class Almanac((long StartingSeedId, long Range)[] seedsToBePlanted, long[][][] categoryMaps)
     {
         public enum Categories
@@ -107,7 +115,9 @@ namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
 
             var seedIds = YieldSeedIds(seedsToBePlanted);
 
-            foreach (var seedId in seedIds)
+            object lck = new();
+
+            foreach (var seedId in seedIds.AsParallel())
             {
                 var soilId = FindInCategory(seedId, Almanac.Categories.SeedToSoil);
                 var fertId = FindInCategory(soilId, Almanac.Categories.SoilToFertiliser);
@@ -117,7 +127,7 @@ namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
                 var humdId = FindInCategory(tempId, Almanac.Categories.TemperatureToHumidity);
                 var locnId = FindInCategory(humdId, Almanac.Categories.HumidityToLocation);
 
-                if (locnId < actualLocationId) actualLocationId = locnId;
+                lock (lck) { if (locnId < actualLocationId) actualLocationId = locnId; }
             }
 
             return actualLocationId;
