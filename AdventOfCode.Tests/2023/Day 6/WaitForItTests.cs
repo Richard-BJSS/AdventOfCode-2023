@@ -10,7 +10,7 @@ namespace AdventOfCode.Tests._2023.Day_6
         [DataRow("Time: 44 70 70 80", "Distance: 283 1134 1134 1491", 219849)]
         [DataRow("Time: 71530",       "Distance: 940200",              71503)]
         [DataRow("Time: 44707080",    "Distance: 283113411341491",  29432455)]
-        public async Task Calculates_MarginOfErrorCorrectly(string rawTime, string rawDistance, int expectedMarginOfError)
+        public void Calculates_MarginOfErrorCorrectly(string rawTime, string rawDistance, int expectedMarginOfError)
         {
             var rawData = new[] { rawTime, rawDistance };
 
@@ -45,7 +45,7 @@ namespace AdventOfCode.Tests._2023.Day_6
         [DataRow("Time: 44 70 70 80", "Distance: 283 1134 1134 1491", 219849)]
         [DataRow("Time: 71530", "Distance: 940200", 71503)]
         [DataRow("Time: 44707080", "Distance: 283113411341491", 29432455)]
-        public async Task Calculates_MarginOfErrorCorrectly_MathifiedForGiggles(string rawTime, string rawDistance, int expectedMarginOfError)
+        public void Calculates_MarginOfErrorCorrectly_MathifiedForGiggles(string rawTime, string rawDistance, int expectedMarginOfError)
         {
             // d = c * (t - c) where d is distance covered, c is initial charge, and t is time taken
             // d = -c² + ct

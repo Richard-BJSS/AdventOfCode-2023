@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
 {
@@ -72,6 +73,8 @@ namespace AdventOfCode._2023.Day_5.SeedsAndFertiliser
                     y++;
                 }
             }
+
+            Debug.Assert(seeds is not null);
 
             return new(seeds, maps);
         }
