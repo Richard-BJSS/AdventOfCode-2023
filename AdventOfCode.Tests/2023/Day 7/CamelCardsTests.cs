@@ -127,7 +127,7 @@ namespace AdventOfCode.Tests._2023.Day_7
 
             var totalWinnings = await winnings.SumAsync();
 
-            Assert.AreEqual(253638586, totalWinnings); // 253637121 .. 1465 out - why?
+            Assert.AreEqual(253638586, totalWinnings);
         }
 
         [DataTestMethod]
@@ -148,5 +148,44 @@ namespace AdventOfCode.Tests._2023.Day_7
             Assert.AreEqual(expectedResult, actualResult);
         }
 
+        [TestMethod]
+        public void WithWildcard_TotalWinnings_AreCalculatedCorrectly()
+        {
+            var rawGame = new[] {
+                "32T3K 765",    // 5. Pair 3
+                "T55J5 684",    // 3. Four of a Kind - 5
+                "KK677 28",     // 4. Two Pair - K7
+                "KTJJT 220",    // 2. Four of a Kind - 10
+                "QQQJA 483",    // 1. Four of a Kind - Q
+            };
+
+            var hands = rawGame.Select(CamelCards.ParseWithWildcards);
+
+            var handsOrderedByStrength = hands.Order(HandStrengthComparer.StrongestFirst).OrderByDescending(x => x);
+
+            var winnings = handsOrderedByStrength.Select((h, n) => (n + 1) * h.Item2);
+
+            var totalWinnings = winnings.Sum();
+
+            Assert.AreEqual(5905, totalWinnings);
+        }
+
+        [TestMethod]
+        public async Task WithWildcard_TotalWinnings_AreCalculatedCorrectlyFromFile()
+        {
+            using var cts = new CancellationTokenSource(delay: TimeSpan.FromSeconds(5));
+
+            var rawHands = File.ReadLinesAsync("2023/Day 7/CamelCards-File.txt", cts.Token);
+
+            var handsWithBids = rawHands.SelectAwait(CamelCards.ParseWithWildcardsAsync);
+
+            var handsOrderedByStrength = handsWithBids.OrderByDescendingAwait(x => ValueTask.FromResult(x), HandStrengthComparer.StrongestFirst);
+
+            var winnings = handsOrderedByStrength.Select((h, n) => (n + 1) * h.Bid);
+
+            var totalWinnings = await winnings.SumAsync();
+
+            Assert.AreEqual(253253225, totalWinnings); 
+        }
     }
 }

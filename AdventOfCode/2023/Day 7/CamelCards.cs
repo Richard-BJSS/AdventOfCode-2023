@@ -4,47 +4,62 @@
     {
         public static ValueTask<(Hand Hand, int Bid)> ParseAsync(string rawExtendedHand) => ValueTask.FromResult(Parse(rawExtendedHand));
 
+        public static ValueTask<(Hand Hand, int Bid)> ParseWithWildcardsAsync(string rawExtendedHand) => ValueTask.FromResult(ParseWithWildcards(rawExtendedHand)); 
+
         public static (Hand Hand, int Bid) Parse(string rawExtendedHand)
         {
             var extHand = rawExtendedHand.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             return (Hand.Parse(extHand[0]), int.Parse(extHand[1]));
         }
+
+        public static (Hand Hand, int Bid) ParseWithWildcards(string rawExtendedHand)
+        {
+            var extHand = rawExtendedHand.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            return (Hand.Parse(extHand[0], playingWildcards: true), int.Parse(extHand[1]));
+        }
+
     }
 
     public sealed record Hand
         : IComparable<Hand>
     {
         private readonly Card[] _cards;
-        private readonly Card[] _cardsOrderedByStrength;
+        private readonly bool _playingWildcards;
 
-        public Hand(Card[] cards) : base()
+        public Hand(Card[] cards, bool playingWildcards) : base()
         {
-            _cards = cards;
-            _cardsOrderedByStrength = [.. _cards.Order()];
+            _playingWildcards = playingWildcards;
 
-            var q = from c in _cardsOrderedByStrength
-                    group c by c.face into g
-                    let gc = g.Count()
-                    orderby gc descending
-                    select gc;
+            _cards = _playingWildcards ? cards.Select(c => c == Card.Joker ? Card.Wildcard : c).ToArray() : cards;
 
-            Type = q.ToList() switch
+            IEnumerable<Card> cardsOrderedByValueAsc = !_playingWildcards ? cards.Order() : ReplaceWildcards(_cards).Order();
+
+            var typePattern = 
+                from c in cardsOrderedByValueAsc
+                group c by c into g
+                let gc = g.Count()
+                orderby gc descending
+                select gc;
+
+            Type = typePattern.ToList() switch
             {
-                [5] => HandType.FiveOfAKind,
-                [4, 1] => HandType.FourOfAKind,
-                [3, 2] => HandType.FullHouse,
-                [3, 1, 1] => HandType.ThreeOfAKind,
-                [2, 2, 1] => HandType.TwoPair,
-                [2, 1, 1, 1] => HandType.Pair,
-                [1, 1, 1, 1, 1] => HandType.HighCard,
+                [5] => 6,               // Five Of A Kind
+                [4, 1] => 5,            // Four Of A Kind
+                [3, 2] => 4,            // Full House
+                [3, 1, 1] => 3,         // Three Of A Kind
+                [2, 2, 1] => 2,         // Two Pair
+                [2, 1, 1, 1] => 1,      // Pair
+                [1, 1, 1, 1, 1] => 0,   // High Card
+
                 _ => throw new ApplicationException("Unable to determine hand type from cards")
             };
         }
 
-        public static Hand Parse(string s) => new([.. s.ToCharArray().Select(c => Card.Parse(c))]);
-
-        public HandType Type { get; init; }
+        public static Hand Parse(string s, bool playingWildcards = false) => new([.. s.ToCharArray().Select(c => Card.Parse(c))], playingWildcards);
+ 
+        public byte Type { get; init; }
 
         public int CompareTo(Hand? other)
         {
@@ -59,9 +74,11 @@
                     var c1 = _cards[n];
                     var c2 = other._cards[n];
 
-                    if (c1.Value == c2.Value) continue;
+                    var comparison = c1.CompareTo(c2);
 
-                    return Math.Sign(c2.Value - c1.Value);
+                    if (0 == comparison) continue;
+
+                    return comparison * -1;
                 }
 
                 return 0;
@@ -70,51 +87,63 @@
             return 1;
         }
 
-        public override string ToString() =>
-            _cards.Aggregate(string.Empty, (a, c) => a + c.ToString()) + "=>" +
-            _cardsOrderedByStrength.Aggregate(string.Empty, (a, c) => a + c.ToString()) + "=>" +
-            Type.ToString();
+        private static Card[] ReplaceWildcards(Card[] cards)
+        {
+            if (!cards.Any(c => c == Card.Wildcard)) return cards;
+
+            var noWildcards = cards.Where(c => c != Card.Wildcard);
+
+            var q = from c in noWildcards
+                    group c by c into g
+                    orderby g.Count() descending
+                    select g.Key;
+
+            var mostFrequentCard = q.FirstOrDefault();
+
+            if (mostFrequentCard is null) return Parse("AAAAA")._cards;
+
+            var xs = new Card[cards.Length];
+
+            for (var n = 0; n < cards.Length; n++)
+            {
+                xs[n] = Card.Wildcard == cards[n]
+                    ? mostFrequentCard
+                    : cards[n];
+            }
+
+            return [.. xs];
+        }
     }
 
-    public enum HandType
-    {
-        HighCard = 0,
-        Pair = 1,
-        TwoPair = 2,
-        ThreeOfAKind = 3,
-        FullHouse = 4,
-        FourOfAKind = 5,
-        FiveOfAKind = 6
-    }
-
-    public sealed record Card(char face)
+    public sealed record Card(char Face)
         : IComparable<Card>
     {
-        private static Dictionary<char, int> relativeValuesMap = new() {
-                { '_', 0 },
-                { '1', 1 },
-                { '2', 2 },
-                { '3', 3 },
-                { '4', 4 },
-                { '5', 5 },
-                { '6', 6 },
-                { '7', 7 },
-                { '8', 8 },
-                { '9', 9 },
-                { 'T', 10 },
-                { 'J', 11 },
-                { 'Q', 12 },
-                { 'K', 13 },
-                { 'A', 14 },
-            };
+        public readonly static Card Wildcard = new('*');
+        public readonly static Card Joker = new('J');
+
+        private static readonly Dictionary<char, int> relativeValuesMap = new() {
+            { '*', 0 },
+            { '1', 1 },
+            { '2', 2 },
+            { '3', 3 },
+            { '4', 4 },
+            { '5', 5 },
+            { '6', 6 },
+            { '7', 7 },
+            { '8', 8 },
+            { '9', 9 },
+            { 'T', 10 },
+            { 'J', 11 },
+            { 'Q', 12 },
+            { 'K', 13 },
+            { 'A', 14 },
+        };
 
         public static Card Parse(char face) => new(face);
 
-        public int Value => relativeValuesMap[face];
+        public int Value => relativeValuesMap[Face];
 
         public int CompareTo(Card? other) => Value.CompareTo(other?.Value ?? 0);
-
-        public override string ToString() => new(new[] { face });
     };
 
     public sealed class HandStrengthComparer
