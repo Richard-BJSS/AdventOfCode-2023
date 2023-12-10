@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode
 {
-    public static partial class Calculate
+    public static partial class Numerics
     {
         /// <summary>
         /// Also known as the Least Common Multiple

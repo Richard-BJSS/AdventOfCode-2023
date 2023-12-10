@@ -11,4 +11,8 @@
     <ProjectReference Include="..\AdventOfCode.Maths\AdventOfCode.Maths.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="2023\Day 9\" />
+  </ItemGroup>
+
 </Project>

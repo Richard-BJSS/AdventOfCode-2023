@@ -44,6 +44,9 @@
     <None Update="2023\Day 8\Haunted-Wasteland-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="2023\Day 9\Mirage-Maintenance-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
