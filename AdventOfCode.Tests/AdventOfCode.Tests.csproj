@@ -9,6 +9,14 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
@@ -23,28 +31,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="2023\Day 1\Calibration-Input-File.txt">
+    <None Update="2023\Day01\Calibration-Input-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="2023\Day 2\Game-History-File.txt">
+    <None Update="2023\Day02\Game-History-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="2023\Day 3\Engine-Schematic-File.txt">
+    <None Update="2023\Day03\Engine-Schematic-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="2023\Day 4\Scratchcard-File.txt">
+    <None Update="2023\Day04\Scratchcard-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="2023\Day 5\Almanac-File.txt">
+    <None Update="2023\Day05\Almanac-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="2023\Day 7\CamelCards-File.txt">
+    <None Update="2023\Day07\CamelCards-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="2023\Day 8\Haunted-Wasteland-File.txt">
+    <None Update="2023\Day08\Haunted-Wasteland-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="2023\Day 9\Mirage-Maintenance-File.txt">
+    <None Update="2023\Day09\Mirage-Maintenance-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="2023\Day10\Pipe-Maze-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
