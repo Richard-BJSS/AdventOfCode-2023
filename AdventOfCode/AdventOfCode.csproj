@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="2023\Day09\" />
+    <Folder Include="2023\Day11\" />
   </ItemGroup>
 
 </Project>

@@ -58,6 +58,9 @@
     <None Update="2023\Day10\Pipe-Maze-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="2023\Day11\Cosmic-Expansion-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

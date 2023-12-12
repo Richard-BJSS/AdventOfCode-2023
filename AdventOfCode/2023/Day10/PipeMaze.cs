@@ -2,7 +2,7 @@
 
 namespace AdventOfCode._2023.Day10
 {
-    public class PipeMap(char[,] ParsedMap)
+    public sealed class PipeMap(char[,] ParsedMap)
     {
         private static class Compass
         {

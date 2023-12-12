@@ -19,7 +19,7 @@
 
         public static IEnumerable<long> ToSequenceOfDifferences(this long[] source)
             => source?.Zip(source.Skip(1)).Select(p => p.Second - p.First)
-               ?? Enumerable.Empty<long>() ;
+               ?? System.Linq.Enumerable.Empty<long>() ;
 
         public static IEnumerable<long[]> ToSequencesOfDifferences(this long[] source)
         {
