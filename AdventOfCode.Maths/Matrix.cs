@@ -15,6 +15,10 @@ namespace AdventOfCode.Maths
         public static implicit operator Matrix<T> (T[,] entries) => new (entries);
         public static implicit operator Matrix<T>(T[][] entries) => new (entries);
 
+        public Size Size => new (entries.GetLength(0), _entries.GetLength(1));
+
+        public T[] RowAt(int index) => (_jaggedEntries ??= _entries.ToJaggedArray())[index];
+
         public T? ValueAt(Point pt) => entries[pt.X, pt.Y];
         public T? ValueAt(int x, int y) => entries[x, y];
 
@@ -24,17 +28,28 @@ namespace AdventOfCode.Maths
         public IEnumerable<Point> Cells(Predicate<T> predicate) => Cells((_, e) => predicate(e));
         public IEnumerable<Point> Cells(Func<Point, T, bool> predicate)
         {
-            _jaggedEntries ??= _entries.ToJaggedArray();
 
-            for (var y = 0; y < _jaggedEntries.Length; y++)
+            for (var x = 0;  x < _entries.GetLength(0); x++)
             {
-                for (var x = 0; x < _jaggedEntries[0].Length; x++)
+                for (var y = 0; y < _entries.GetLength(1); y++)
                 {
                     var pt = new Point(x, y);
 
-                    if (predicate(pt, _jaggedEntries[y][x])) yield return pt;
+                    if (predicate(pt, entries[x, y])) yield return pt;
                 }
             }
+
+            //_jaggedEntries ??= _entries.ToJaggedArray();
+
+            //for (var y = 0; y < _jaggedEntries.Length; y++)
+            //{
+            //    for (var x = 0; x < _jaggedEntries[0].Length; x++)
+            //    {
+            //        var pt = new Point(x, y);
+
+            //        if (predicate(pt, _jaggedEntries[y][x])) yield return pt;
+            //    }
+            //}
         }
     }
 }
@@ -94,6 +109,7 @@ namespace AdventOfCode
             return r;
         }
 
+        public static string[] Rotate90CW(string[] entries) => Rotate90CW(entries.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs)).ToArray();
         public static T[][] Rotate90CW<T>(T[,] entries) => ArrayExtensions.Zip(entries.ToJaggedArray()).Select(m => m.Reverse().ToArray()).ToArray();
         public static T[][] Rotate90CCW<T>(T[,] entries) => ArrayExtensions.Zip(entries.ToJaggedArray()).Reverse().ToArray();
         public static T[][] Rotate90CW<T>(T[][] entries) => ArrayExtensions.Zip(entries).Select(m => m.Reverse().ToArray()).ToArray();

@@ -30,30 +30,14 @@ namespace AdventOfCode._2023.Day12
             };
 
         public long CalculateTotalNumberOfPossibleArrangementsAcrossAllRecords() => 
-            SpringConditionRecords.Select(SpringConditionRecord.CalculateNumberOfPossibleArrangements).Sum();
-
-
-        //public static long CalculateNumberOfPossibleArrangements(SpringConditionRecord springRecord)
-        //{
-        //    var (pattern, counts) = springRecord;
-
-        //    if (pattern.Contains('?'))
-        //    {
-        //        var poundPossibilities = CalculateNumberOfPossibleArrangements(new(_firstMatch.Replace(springRecord.Pattern, "#", 1), springRecord.Counts));
-        //        var dotPossibilities =   CalculateNumberOfPossibleArrangements(new(_firstMatch.Replace(springRecord.Pattern, ".", 1), springRecord.Counts));
-
-        //        return poundPossibilities + dotPossibilities;
-        //    }
-        //    else if (Enumerable.SequenceEqual(_allPounds.Matches(springRecord.Pattern).Select(m => m.Value.Length), springRecord.Counts)) 
-        //        return 1;
-        //    else
-        //        return 0;
-        //}
-
-
+            SpringConditionRecords.Select(SpringConditionRecord.CalculateNumberOfPossibleArrangements)
+                                  .Sum();
 
         public sealed record SpringConditionRecord(string Pattern, int[] Counts)
         {
+            private readonly static Dictionary<string, long>? _numberOfArrangementsCache = [];
+            private readonly static Dictionary<(string, long), int[]>? _indexesOfPlacementsCache = [];
+
             public static SpringConditionRecord Parse(string rawRecord, int unfoldFactor = 1)
             {
                 var xs = rawRecord.Split(' ');
@@ -83,18 +67,24 @@ namespace AdventOfCode._2023.Day12
             {
                 if (0 >= counts.Length) return pattern.Contains('#') ? 0 : 1;
 
+                var cacheKey = $"{pattern} -> ({string.Join(',', counts)})"; 
+
+                if (_numberOfArrangementsCache?.TryGetValue(cacheKey, out var possibilities) ?? false) return possibilities;
+
                 var c = counts[0];
 
-                var possibilities = 
+                possibilities =
                     CalculateOrderedIndexesOfPossiblePlacements(pattern, c)
-                        .Sum(idx => {
-
+                        .Sum(idx =>
+                        {
                             var n = idx + c + 1;
 
                             var remainingPattern = n >= pattern.Length ? string.Empty : pattern[n..];
 
                             return CalculateNumberOfPossibleArrangements(remainingPattern, counts[1..]);
                         });
+
+                _ = _numberOfArrangementsCache?.TryAdd(cacheKey, possibilities);
 
                 return possibilities;
             }
@@ -108,6 +98,10 @@ namespace AdventOfCode._2023.Day12
             /// <returns>The index in the pattern where the group of damaged springs could be injected</returns>
             public static int[] CalculateOrderedIndexesOfPossiblePlacements(string pattern, int numContiguousDamagedSprings)
             {
+                var cacheKey = (pattern, numContiguousDamagedSprings);
+
+                if (_indexesOfPlacementsCache?.TryGetValue(cacheKey, out var indexes) ?? false) return indexes;
+
                 // .            - matches any character other than a line terminator
                 // !            - does not match
                 // |            - or operator
@@ -145,9 +139,11 @@ namespace AdventOfCode._2023.Day12
 
                 var ms = regex.Matches(pattern);
 
-                var r = ms.Select(m => m.Index).Where(i => i == 0 || !pattern[..(i - 1)].Contains('#'));
+                indexes = ms.Select(m => m.Index).Where(i => i == 0 || !pattern[..(i - 1)].Contains('#')).ToArray();
 
-                return r.ToArray();
+                _ = _indexesOfPlacementsCache?.TryAdd(cacheKey, indexes);
+
+                return indexes;
             }
         }
     }
