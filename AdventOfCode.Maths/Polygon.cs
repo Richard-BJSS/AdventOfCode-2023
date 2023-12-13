@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 
 namespace AdventOfCode
 {
@@ -95,6 +96,22 @@ namespace AdventOfCode
                     yield return new Point(x, y);
                 }
             }
+        }
+
+        public sealed class EdgeEqualityComparer
+            : IEqualityComparer<(Point fst, Point snd)>
+        {
+            public readonly static EdgeEqualityComparer BiDirectional = new();
+
+            public bool Equals((Point fst, Point snd) x, (Point fst, Point snd) y) =>
+                (x.fst == y.snd && x.snd == y.fst) || 
+                (x.fst == y.fst && x.snd == y.snd);
+
+            public int GetHashCode([DisallowNull] (Point fst, Point snd) obj)
+                => HashCode.Combine(
+                    Math.Min(obj.fst.X, obj.snd.X), 
+                    Math.Min(obj.fst.Y, obj.snd.Y)
+                    );
         }
     }
 }
