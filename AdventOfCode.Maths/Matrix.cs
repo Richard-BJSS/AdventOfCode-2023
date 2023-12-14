@@ -6,7 +6,7 @@ namespace AdventOfCode.Maths
     public sealed class Matrix<T>(T[,] entries)
     {
         private readonly T[,] _entries = entries;
-        private T[][] _jaggedEntries;
+        private T[][]? _jaggedEntries;
 
         public Matrix(T[][] entries) : this(entries.ToRectangularArray()) { }
 
@@ -72,10 +72,10 @@ namespace AdventOfCode
             return new Matrix<T>(m);
         }
         
-        public static T[][] ToJaggedArray<T>(this T[,] multiDim)
+        public static T[][] ToJaggedArray<T>(this T[,] source)
         {
-            var mdw = multiDim.GetLength(0);
-            var mdh = multiDim.GetLength(1);
+            var mdw = source.GetLength(0);
+            var mdh = source.GetLength(1);
 
             var r = new T[mdh][];
 
@@ -85,20 +85,22 @@ namespace AdventOfCode
 
                 for (var x = 0; x < mdw; x++)
                 {
-                    r[y][x] = multiDim[x, y];
+                    r[y][x] = source[x, y];
                 }
             }
 
             return r;
         }
 
-        public static T[,] ToRectangularArray<T>(this T[][] jagged)
-        {
-            var r = new T[jagged[0].Length, jagged.Length];
+        public static char[][] ToJaggedArray(this IEnumerable<string> source) => source.Select(s => s.ToCharArray()).ToArray();
 
-            for (var ys = 0; ys < jagged.Length; ys++)
+        public static T[,] ToRectangularArray<T>(this T[][] source)
+        {
+            var r = new T[source[0].Length, source.Length];
+
+            for (var ys = 0; ys < source.Length; ys++)
             {
-                var xs = jagged[ys];
+                var xs = source[ys];
 
                 for (var x = 0; x < xs.Length; x++)
                 {
@@ -109,12 +111,23 @@ namespace AdventOfCode
             return r;
         }
 
-        public static string[] Rotate90CW(string[] entries) => Rotate90CW(entries.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs)).ToArray();
-        public static T[][] Rotate90CW<T>(T[,] entries) => ArrayExtensions.Zip(entries.ToJaggedArray()).Select(m => m.Reverse().ToArray()).ToArray();
-        public static T[][] Rotate90CCW<T>(T[,] entries) => ArrayExtensions.Zip(entries.ToJaggedArray()).Reverse().ToArray();
-        public static T[][] Rotate90CW<T>(T[][] entries) => ArrayExtensions.Zip(entries).Select(m => m.Reverse().ToArray()).ToArray();
-        public static T[][] Rotate90CCW<T>(T[][] entries) => ArrayExtensions.Zip(entries).Reverse().ToArray();
+        public static IEnumerable<string> Rotate90CW(this IEnumerable<string> source) => Rotate90CW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs));
+        public static IEnumerable<string> Rotate90CCW(this IEnumerable<string> source) => Rotate90CCW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs));
 
+        public static string[] Rotate90CW(this string[] source) => Rotate90CW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs)).ToArray();
+        public static string[] Rotate90CCW(this string[] source) => Rotate90CCW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs)).ToArray();
+
+        public static T[][] Rotate90CW<T>(this T[,] source) => ArrayExtensions.Zip(source.ToJaggedArray()).Select(m => m.Reverse().ToArray()).ToArray();
+        public static T[][] Rotate90CCW<T>(this T[,] source) => ArrayExtensions.Zip(source.ToJaggedArray()).Reverse().ToArray();
+
+        public static T[][] Rotate90CW<T>(this T[][] source) => ArrayExtensions.Zip(source).Select(m => m.Reverse().ToArray()).ToArray();
+        public static T[][] Rotate90CCW<T>(this T[][] source) => ArrayExtensions.Zip(source).Reverse().ToArray();
+
+        public static IEnumerable<string> Rotate180(IEnumerable<string> source) => source.FlipHorizontally().FlipVertically();
+        public static string[] Rotate180(string[] source) => source.FlipHorizontally().FlipVertically().ToArray();
+
+        public static IEnumerable<string> FlipVertically(this IEnumerable<string> source) => source.Reverse();
+        public static IEnumerable<string> FlipHorizontally(this IEnumerable<string> source) => source.Select(s => new string(s.Reverse().ToArray()));
 
         public static int ManhattanDistance(Point a, Point b) => Math.Abs(b.X - a.X) + Math.Abs(b.Y - a.Y);
 

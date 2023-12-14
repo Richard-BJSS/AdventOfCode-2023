@@ -67,6 +67,9 @@
     <None Update="2023\Day13\Point-Of-Incidence-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="2023\Day14\Parabolic-Reflection-Dish-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

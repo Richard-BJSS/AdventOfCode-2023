@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode
 {
-    public static partial class Func
+    public static partial class FuncExtensions
     {
         public static Func<T, R> Memoize<T, R>(this Func<T, R> func)
             where T : class

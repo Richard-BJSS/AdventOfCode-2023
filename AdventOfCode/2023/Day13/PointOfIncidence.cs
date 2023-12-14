@@ -2,50 +2,45 @@
 {
     public static class PointOfIncidence
     {
-        public static int EvaluateRawPattern(string rawPattern)
+        public static int[] ReflectionScores(string[] orig)
         {
-            var rows = rawPattern.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
+            var strings = orig.ToArray();
+            var scores = new int[2];
 
-            var rowsAbove = EvaluatePattern(rows);
-
-            var cols = Geometry.Rotate90CW(rows);
-
-            var colsToLeft = EvaluatePattern(cols.ToArray());
-
-            return colsToLeft + (100 * rowsAbove);
-        }
-
-        private static int EvaluatePattern(string[] pattern)
-        {
-            var rowPairs = pattern.Zip(pattern.Skip(1)).Select((p, n) => (Pair: p, Idx: n)).Where(p => p.Pair.First == p.Pair.Second).Select(p => (p.Idx, p.Idx + 1));
-
-            var indexes = rowPairs.Select(p => p.Item2).ToArray();
-
-            return DeterminePointOfIncidence(indexes, pattern);
-        }
-
-        private static int DeterminePointOfIncidence(int[] indexes, string[] data)
-        {
-            if (indexes is null || 0 >= indexes.Length) return 0;
-
-            foreach (var idx in indexes)
+            foreach (var reversed in new[] { false, true })
             {
-                var isPointOfIncidence = false;
-
-                var m = Math.Min(idx, data.Length - idx); 
-
-                for (var n = 0; n < m; n++)
+                for (var j = 1; j < strings.Length; j += 2)
                 {
-                    if (!(isPointOfIncidence = data[idx - n - 1] == data[idx + n]))
+                    var smudges = 1 - StringExtensions.HammingDistance(strings[0], strings[j]);
+
+                    if (smudges < 0) continue;
+
+                    var radius = (j + 1) / 2;
+                    var reflection = true;
+
+                    for (var k = 1; k < radius; k++)
                     {
-                        break;
+                        smudges -= StringExtensions.HammingDistance(strings[k], strings[j - k]);
+
+                        if (smudges < 0)
+                        {
+                            reflection = false;
+                            break;
+                        }
+                    }
+
+                    if (reflection)
+                    {
+                        scores[(smudges + 1) % 2] += reversed ? strings.Length - radius : radius;
                     }
                 }
 
-                if (isPointOfIncidence) return idx;
+                if (reversed) return scores;
+
+                strings = strings.Reverse().ToArray();
             }
 
-            return 0;
+            throw new Exception();
         }
     }
 }
