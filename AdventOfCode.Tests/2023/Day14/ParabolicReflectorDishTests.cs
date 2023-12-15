@@ -56,7 +56,7 @@ namespace AdventOfCode.Tests._2023.Day14
         [DataTestMethod]
         [DataRow(0L, 109654L)]
         [DataRow(1000000000L, 94876L)]
-        public async Task TotalLoadOfPlatform_CalculatedCorrectlyFromFile(long cycles, long expectedTotalLoad)
+        public async Task TotalLoadOfPlatform_CalculatedCorrectly_FromFile(long cycles, long expectedTotalLoad)
         {
             using var cts = new CancellationTokenSource(delay: TimeSpan.FromSeconds(5));
 
