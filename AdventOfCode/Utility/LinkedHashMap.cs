@@ -5,7 +5,7 @@ namespace AdventOfCode.Utility
     public sealed class LinkedHashMap
         : NameValueCollection
     {
-        public string Pop(string key)
+        public string? Pop(string key)
         {
             var value = Get(key);
 

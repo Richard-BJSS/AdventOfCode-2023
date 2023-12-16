@@ -16,9 +16,8 @@
 
                 var op = step.Split('=');
 
-                var _ = op switch
+                _ = op switch
                 {
-
                     [var label, var focalLength] => boxes[ComputeHash(label)][label] = focalLength,
 
                     [var label] => boxes[ComputeHash(label[..^1])].Pop(label[..^1]),
@@ -42,7 +41,7 @@
 
                 for (var l = 0; l < box.Count; l++)
                 {
-                    var focalLength = int.Parse(box[l]);
+                    var focalLength = int.Parse(box[l] ?? throw new ApplicationException());
 
                     fp += ((b + 1) * (l + 1)) * focalLength;
                 }
