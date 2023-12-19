@@ -50,40 +50,41 @@ namespace AdventOfCode
 
                 return new(r);
             }
-        }
 
-        public static class WindingNumberAlgorithm
-        {
-            public static bool IsPointLocatedInsidePolygon(Point pt, Polygon polygon)
+            public string Visualise()
             {
-                if (polygon.Points.Contains(pt)) return false;
+                var tlX = BoundingBox.Left;
+                var tlY = BoundingBox.Top;
 
-                var windingNumber = 0;
+                var brX = BoundingBox.Width;
+                var brY = BoundingBox.Height;
 
-                foreach (var edge in polygon.Close().Edges)
+                var rc = 1 + brY - tlY;
+                var cc = 1 + brX - tlX;
+
+                var visual = Enumerable.Repeat(new string('.', cc), rc).Select(s => s.ToCharArray()).ToArray();
+
+                for (var n = 1; n < points.Length; n++)
                 {
-                    var (fst, snd) = edge;
+                    var pv = points[n - 1];
+                    var pt = points[n];
 
-                    if (fst.Y <= pt.Y)
+                    visual[pt.Y][pt.X] = pv switch
                     {
-                        if (snd.Y > pt.Y)   
-                            if (IsPointToTheLeftOfTheEdge(edge, pt) > 0) 
-                               ++windingNumber;
-                    }
-                    else if (snd.Y <= pt.Y) 
-                    {
-                        if (IsPointToTheLeftOfTheEdge(edge, pt) < 0) 
-                            --windingNumber;
-                    }
+                        _ when pv.Y > pt.Y => '^',
+                        _ when pv.Y < pt.Y => 'v',
+                        _ when pv.X < pt.X => '>',
+                        _ when pv.X > pt.X => '<',
+                        _ => '?'
+                    };
                 }
 
-                return windingNumber != 0;
-            }
+                visual[tlY][tlX] = 'S';
+                visual[brY][brX] = 'E';
 
-            private static double IsPointToTheLeftOfTheEdge((Point fst, Point snd) edge, Point pt) =>
-                ((edge.snd.X - edge.fst.X) * (pt.Y - edge.fst.Y) -
-                 (pt.X - edge.fst.X) * (edge.snd.Y - edge.fst.Y));
-        }           
+                return visual.Select(c => new string(c)).Aggregate(string.Empty, (a, s) => string.Concat(a, s, Environment.NewLine));
+            }
+        }
 
         public static IEnumerable<Point> ToPoints(this Rectangle rect)
         {
@@ -112,6 +113,39 @@ namespace AdventOfCode
                     Math.Min(obj.fst.X, obj.snd.X), 
                     Math.Min(obj.fst.Y, obj.snd.Y)
                     );
+        }
+
+
+        public static class ShoelaceFormulae
+        {
+            public static long AreaOfSimplePolygon(Polygon polygon)
+            {
+                // Only works on Simple closed Polygons - where edges do not cross over each other
+                // http://en.wikipedia.org/wiki/Polygon#Area_and_centroid
+
+                // A = 1/2 * sum(x[i]*y[i+1] - x[i+1]*y[i])
+
+                // NB - added the mod (%) check in case the polygon isn't closed (rather than creating another array to close it off)
+
+                var area = 0L;
+
+                var points = polygon.Points;
+
+                var len = points.Length;
+
+                for (var n = 0; n < len; n++)
+                {
+                    area += ((long)points[n].X * (long)points[(n + 1) % len].Y) - ((long)points[(n + 1) % len].X * (long)points[n].Y);
+                }
+
+                return Math.Abs(area) / 2;
+            }
+        }
+
+        public static class PicksTheorum
+        {
+            public static long InternalAreaOfSimplePolygon(long area, long perimeter) => area - (perimeter / 2) + 1;
+            public static long InternalAreaOfSimplePolygon(Polygon polygon, long perimeter) => InternalAreaOfSimplePolygon(ShoelaceFormulae.AreaOfSimplePolygon(polygon), perimeter);
         }
     }
 }

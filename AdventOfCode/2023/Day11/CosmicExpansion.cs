@@ -15,7 +15,9 @@ namespace AdventOfCode._2023.Day11
 
             var mx = rawObsAnalysis.Select(s => s.ToCharArray()).ToArray();
 
-            var galaxies = new Matrix<char>(mx).Cells(e => e == '#').ToArray();
+            var matrix = new Matrix<char>(mx);
+
+            var galaxies = matrix.Entries(pt => matrix.ValueAt(pt) == '#').ToArray();
 
             var edges = from g1 in galaxies
                         from g2 in galaxies

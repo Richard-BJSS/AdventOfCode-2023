@@ -23,4 +23,10 @@
     <Folder Include="2023\Day09\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="2023\Day18\Lavaduct-Lagoon-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

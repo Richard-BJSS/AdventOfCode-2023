@@ -32,14 +32,18 @@
 
             var compass = Geometry.Compass.North | Geometry.Compass.East | Geometry.Compass.South | Geometry.Compass.West;
 
-            var edge = expandedGalaxy.Cells(c => char.IsNumber(c) && (int.Parse(c.ToString()) == galaxyFrom || int.Parse(c.ToString()) == galaxyTo)).ToArray();
+            var edge = expandedGalaxy.Entries(
+                pt => char.IsNumber(expandedGalaxy.ValueAt(pt)) && (int.Parse([expandedGalaxy.ValueAt(pt)]) == galaxyFrom || 
+                      int.Parse([expandedGalaxy.ValueAt(pt)]) == galaxyTo)
+                      ).ToArray();
 
             Assert.AreEqual(2, edge.Length);
 
-            var actualPathLength = Geometry.PathFinder.LocateShortestPath<char>(expandedGalaxy, (edge[0], edge[1]), compass).Length - 1;
+            var pathFinder = new Geometry.AStarPathFinder<char>(expandedGalaxy);
+
+            var actualPathLength = pathFinder.LocatePath(edge[0], edge[1], compass).Length - 1;
 
             Assert.AreEqual(expectedPathLength, actualPathLength);
         }
-
     }
 }

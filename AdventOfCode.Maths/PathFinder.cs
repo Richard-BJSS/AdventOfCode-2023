@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using AdventOfCode.Maths;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 
 namespace AdventOfCode
 {
@@ -17,99 +19,166 @@ namespace AdventOfCode
             NorthWest = 128,
 
             Default = North | NorthEast | East | SouthEast | South | SouthWest | West | NorthWest,
+            News = North | East | South | West,
         }
 
-        public static class PathFinder
+        // This class represents the edge (Parent.Point, Point) and its a direction, thus is a vector
+        public class PathNode
         {
-            private sealed class PathLocation(Point point)
-            { 
-                public Point Point = point;
-                public int? F => G + H;
-                public int? G;
-                public int? H;
-                public PathLocation? Parent;
+            private PathNode? _parent;
+            private int? _distanceTravelled;
+
+            public int DistanceTravelled => _distanceTravelled ??= Parent?.DistanceTravelled + 1 ?? 0;
+
+
+            public int? TotalCost => RollingCost + Heuristic;   // F in Djikstra's Algo
+            public int RollingCost = int.MaxValue;              // G in Djikstra's Algo
+            public int? Heuristic;                              // H in A* Algo ... difference between Djikstra and A* is the use of the heuristic
+
+            public int? Weight;                                 // The weight of the edge (Parent.Point, Point) - cost of navigating to this node from the parent
+            public Point Direction;                             // The direction of travel into the node
+
+            public Point Point = Point.Empty;                   // The location of this node
+            public PathNode? Parent                             // The previous node in the path (if there is one)
+            {
+                get { return _parent; }
+                set { _parent = value; _distanceTravelled = default; }
             }
 
-            public static Point[] LocateShortestPath<T>(T[,] map, (Point fst, Point snd) edge, Compass compass = Compass.Default)
+            public IEnumerable<Point> BacktrackToOrigin()
             {
-                var start = new PathLocation(edge.fst);
-                var target = new PathLocation(edge.snd);
-                
-                var open = new List<PathLocation>([start]);
-                var closed = new List<Point>();
+                yield return Point;
 
-                var g = 0;
+                var parent = Parent;
 
-                var current = default(PathLocation);
+                while (parent is not null)
+                {
+                    yield return parent.Point;
+
+                    parent = parent.Parent;
+                }
+            }
+
+            public override bool Equals(object? obj) => obj is PathNode && Point == ((PathNode)obj).Point;
+
+            public override int GetHashCode() => Point.GetHashCode();
+
+            public override string ToString() => $"[{Point}] = C({RollingCost}) + H({Heuristic}) = {TotalCost}";
+        }
+
+        public abstract class PathFinder<T, N>(Matrix<T> matrix)
+            where N : PathNode, new()
+        {
+            public Matrix<T> Matrix { get; init; } = matrix;
+
+            public abstract Point[] LocatePath(Point startFrom, Point endAt, Compass compass = Compass.Default);
+
+            protected virtual IEnumerable<N> NodesAdjacentTo(N node, Compass compass)
+            {
+                var x = node.Point.X;
+                var y = node.Point.Y;
+
+                if (((compass & Compass.North) == Compass.North))         yield return new N() { Point = new(x + 0, y - 1), Direction = new( 0, -1) };
+                if (((compass & Compass.NorthEast) == Compass.NorthEast)) yield return new N() { Point = new(x + 1, y - 1), Direction = new(+1, -1) };
+                if (((compass & Compass.East) == Compass.East))           yield return new N() { Point = new(x + 1, y + 0), Direction = new(+1,  0) };
+                if (((compass & Compass.SouthEast) == Compass.SouthEast)) yield return new N() { Point = new(x + 1, y + 1), Direction = new(+1, +1) };
+                if (((compass & Compass.South) == Compass.South))         yield return new N() { Point = new(x + 0, y + 1), Direction = new( 0, +1) };
+                if (((compass & Compass.SouthWest) == Compass.SouthWest)) yield return new N() { Point = new(x - 1, y + 1), Direction = new(-1, +1) };
+                if (((compass & Compass.West) == Compass.West))           yield return new N() { Point = new(x - 1, y + 0), Direction = new(-1,  0) };
+                if (((compass & Compass.NorthWest) == Compass.NorthWest)) yield return new N() { Point = new(x - 1, y - 1), Direction = new(-1, -1) };
+            }
+
+            protected virtual bool IsObstacle(N movingFrom, N movingTo) => false;
+
+            protected virtual int GetCostOfEdge(N movingFrom, N movingTo) => 0;
+        }
+
+        public class AStarPathFinder<T>(Matrix<T> matrix) : AStarPathFinder<T, PathNode>(matrix) { }
+
+        public class AStarPathFinder<T, N>(Matrix<T> matrix) : PathFinder<T, N>(matrix)
+            where N : PathNode, new()
+        { 
+            public override Point[] LocatePath(Point startFrom, Point endAt, Compass compass = Compass.Default)
+            {
+                var start = new N { 
+                    Point = startFrom,
+                    Direction = Point.Empty,
+                    RollingCost = 0, 
+                    Heuristic = Geometry.ChebyshevDistance(startFrom, endAt) 
+                };
+
+                var open = new PriorityQueue<N, int?>([(start, default)]);
+
+                var solved = new HashSet<N>(SolvedStateEqualityComparer);
+
+                var lowestCostNode = default(N);
+
+                var bounds = Matrix.Rectangle;
 
                 while (0 < open.Count)
                 {
-                    var minF = open.Min(l => l.F);
+                    lowestCostNode = open.Dequeue();
 
-                    current = open.First(l => l.F == minF);
+                    if (lowestCostNode.Point == endAt) break;
 
-                    if (current.Point == target.Point) break;
+                    solved.Add(lowestCostNode);
 
-                    closed.Add(current.Point);
+                    var adjacents = NodesAdjacentTo(lowestCostNode, compass)
+                                        .Where(adj => bounds.Contains(adj.Point))
+                                        .Where(adj => !IsObstacle(lowestCostNode, adj));
 
-                    open.Remove(current);
-
-                    var adjacents = LocationsAdjacentTo(map, current, compass).Where(_ => true); // TODO - eliminate obstacles, walls etc
-
-                    g++;
-
-                    foreach(var adj in adjacents)
+                    foreach (var adj in adjacents)
                     {
-                        if (closed.Contains(adj.Point)) continue;
+                        // TODO: Good idea to add checks for circular paths, or do we let them go on the understanding that 
+                        //       their cost will always exceed (trending toward infinity) and it will never get to the end?
 
-                        if (open.Contains(adj))
-                        {
-                            if (g + adj.H < adj.F)
-                            {
-                                adj.G = g;
-                                adj.Parent = current;
-                            }
-                        }
-                        else
-                        {
-                            adj.G = g;
-                            adj.H = CalculateH(adj.Point, target.Point);
-                            adj.Parent = current;
+                        // Detect paths that are backtracking from whence we came; disqualify them as this algo is for 
+                        // one way directional graphs
 
-                            open.Insert(0, adj);
-                        }
+                        if (adj.Point == lowestCostNode.Parent?.Point) continue;
+
+                        var costOfGettingToAdjNodeFromLowestCostNode = GetCostOfEdge(lowestCostNode, adj);
+
+                        if (costOfGettingToAdjNodeFromLowestCostNode > adj.RollingCost) continue;
+
+                        if (lowestCostNode.RollingCost + costOfGettingToAdjNodeFromLowestCostNode >= adj.RollingCost) continue;
+
+                        // Because we support moving diagonally we use the Chebyshev Distance (movement pattern of a King in Chess) over 
+                        // the Manhattan Distance (appropriate heuristic if only moving NEWS on the compass)
+
+                        adj.Weight = costOfGettingToAdjNodeFromLowestCostNode;
+                        adj.Heuristic = Geometry.ChebyshevDistance(adj.Point, endAt);
+                        adj.RollingCost = lowestCostNode.RollingCost + costOfGettingToAdjNodeFromLowestCostNode;
+                        adj.Parent = lowestCostNode;
+
+                        if (solved.Contains(adj)) continue;
+                                                
+                        open.Enqueue(adj, adj.TotalCost);
                     }
                 }
 
-                if (current is null) return [];
+                if (lowestCostNode is null || lowestCostNode.Point != endAt) return [];
 
-                var lst = new List<Point>([current.Point]);
-
-                while (current.Parent is not null) { lst.Insert(0, current.Parent.Point); current = current.Parent; }
-
-                return [..lst];   
+                return lowestCostNode.BacktrackToOrigin().Reverse().ToArray();
             }
 
-            private static int CalculateH(Point pt, Point target) => Math.Abs(target.X - pt.X) + Math.Abs(target.Y - pt.Y);
+            protected virtual IEqualityComparer<N> SolvedStateEqualityComparer { get; } = new SolvedPathNodeEqualityComparer();
 
-            private static IEnumerable<PathLocation> LocationsAdjacentTo<T>(T[,] map, PathLocation loc, Compass compass)
+            private sealed class SolvedPathNodeEqualityComparer
+                : EqualityComparer<N>
             {
-                var w = map.GetLength(0);
-                var h = map.GetLength(1);
+                public override bool Equals(N? x, N? y)
+                {
+                    if (x is null & y is null) return true;
+                    if (x is null) return false;
+                    if (y is null) return false;
 
-                var rect = new Rectangle(0, 0, w, h);
+                    if (x.Point != y.Point) return false;
 
-                var x = loc.Point.X;
-                var y = loc.Point.Y;
+                    return true;
+                }
 
-                if (rect.Contains(x + 0, y - 1) && ((compass & Compass.North) == Compass.North))         yield return new(new(x + 0, y - 1));
-                if (rect.Contains(x + 1, y - 1) && ((compass & Compass.NorthEast) == Compass.NorthEast)) yield return new(new(x + 1, y - 1));
-                if (rect.Contains(x + 1, y + 0) && ((compass & Compass.East) == Compass.East))           yield return new(new(x + 1, y + 0));
-                if (rect.Contains(x + 1, y + 1) && ((compass & Compass.SouthEast) == Compass.SouthEast)) yield return new(new(x + 1, y + 1));
-                if (rect.Contains(x + 0, y + 1) && ((compass & Compass.South) == Compass.South))         yield return new(new(x + 0, y + 1));
-                if (rect.Contains(x - 1, y + 1) && ((compass & Compass.SouthWest) == Compass.SouthWest)) yield return new(new(x - 1, y + 1));
-                if (rect.Contains(x - 1, y + 0) && ((compass & Compass.West) == Compass.West))           yield return new(new(x - 1, y + 0));
-                if (rect.Contains(x - 1, y - 1) && ((compass & Compass.NorthWest) == Compass.NorthWest)) yield return new(new(x - 1, y - 1));
+                public override int GetHashCode([DisallowNull] N obj) => obj.GetHashCode();
             }
         }
     }

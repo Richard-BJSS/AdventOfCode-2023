@@ -3,6 +3,10 @@ using System.Drawing;
 
 namespace AdventOfCode.Maths
 {
+    // TODO: 
+    // 1. Matrix is a specialised Directed Graph - add appropriate Base Class
+    // 2. As a graph, a vector can be used to describe each edge (path) between two nodes (cells)
+
     public sealed class Matrix<T>(T[,] entries)
     {
         private readonly T[,] _entries = entries;
@@ -15,41 +19,31 @@ namespace AdventOfCode.Maths
         public static implicit operator Matrix<T> (T[,] entries) => new (entries);
         public static implicit operator Matrix<T>(T[][] entries) => new (entries);
 
+        public Rectangle Rectangle => new (Origin, Size);  
+
         public Size Size => new (entries.GetLength(0), _entries.GetLength(1));
+
+        public Point Origin { get; set; } = Point.Empty;
 
         public T[] RowAt(int index) => (_jaggedEntries ??= _entries.ToJaggedArray())[index];
 
-        public T? ValueAt(Point pt) => entries[pt.X, pt.Y];
-        public T? ValueAt(int x, int y) => entries[x, y];
+        public T? ValueAt(Point pt) => entries[pt.X + Origin.X, pt.Y + Origin.Y];
+        public T? ValueAt(int x, int y) => entries[x + Origin.X, y + Origin.Y];
 
         public T[][] Rotate90CW() => Geometry.Rotate90CW(_entries);
         public T[][] Rotate90CCW() => Geometry.Rotate90CCW(_entries);
 
-        public IEnumerable<Point> Cells(Predicate<T> predicate) => Cells((_, e) => predicate(e));
-        public IEnumerable<Point> Cells(Func<Point, T, bool> predicate)
+        public IEnumerable<Point> Entries(Predicate<Point> predicate) 
         {
-
             for (var x = 0;  x < _entries.GetLength(0); x++)
             {
                 for (var y = 0; y < _entries.GetLength(1); y++)
                 {
                     var pt = new Point(x, y);
 
-                    if (predicate(pt, entries[x, y])) yield return pt;
+                    if (predicate(pt)) yield return pt;
                 }
             }
-
-            //_jaggedEntries ??= _entries.ToJaggedArray();
-
-            //for (var y = 0; y < _jaggedEntries.Length; y++)
-            //{
-            //    for (var x = 0; x < _jaggedEntries[0].Length; x++)
-            //    {
-            //        var pt = new Point(x, y);
-
-            //        if (predicate(pt, _jaggedEntries[y][x])) yield return pt;
-            //    }
-            //}
         }
     }
 }
@@ -71,7 +65,11 @@ namespace AdventOfCode
 
             return new Matrix<T>(m);
         }
-        
+
+
+        public static Matrix<char> ToMatrix(this IEnumerable<string> source) => source.ToJaggedArray().ToMatrix();
+        public static Matrix<T> ToMatrix<T>(this IEnumerable<string> source, Func<char, T> converter) => source.Select(s => s.Select(converter).ToArray()).ToArray().ToMatrix();
+
         public static T[][] ToJaggedArray<T>(this T[,] source)
         {
             var mdw = source.GetLength(0);
@@ -91,7 +89,6 @@ namespace AdventOfCode
 
             return r;
         }
-
         public static char[][] ToJaggedArray(this IEnumerable<string> source) => source.Select(s => s.ToCharArray()).ToArray();
 
         public static T[,] ToRectangularArray<T>(this T[][] source)
@@ -110,6 +107,8 @@ namespace AdventOfCode
 
             return r;
         }
+        public static char[,] ToRectangularArray(this string[] source) => source.Select(s => s.ToCharArray()).ToRectangularArray();
+        public static char[,] ToRectangularArray(this IEnumerable<char[]> source) => source.ToArray().ToRectangularArray();
 
         public static IEnumerable<string> Rotate90CW(this IEnumerable<string> source) => Rotate90CW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs));
         public static IEnumerable<string> Rotate90CCW(this IEnumerable<string> source) => Rotate90CCW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs));
@@ -125,11 +124,12 @@ namespace AdventOfCode
 
         public static IEnumerable<string> Rotate180(IEnumerable<string> source) => source.FlipHorizontally().FlipVertically();
         public static string[] Rotate180(string[] source) => source.FlipHorizontally().FlipVertically().ToArray();
-
+            
         public static IEnumerable<string> FlipVertically(this IEnumerable<string> source) => source.Reverse();
         public static IEnumerable<string> FlipHorizontally(this IEnumerable<string> source) => source.Select(s => new string(s.Reverse().ToArray()));
 
         public static int ManhattanDistance(Point a, Point b) => Math.Abs(b.X - a.X) + Math.Abs(b.Y - a.Y);
+        public static int ChebyshevDistance(Point a, Point b) => Math.Max(Math.Abs(b.X - a.X), Math.Abs(b.Y - a.Y)); 
 
     }
 
