@@ -26,8 +26,8 @@ namespace AdventOfCode.Tests._2023.Day17
         }
 
         [DataTestMethod]
-        [DataRow(956, 0, 3)]    // 987 - out by +31, but why?
-        //[DataRow(-1, 4, 10)]  // 1104 is incorrect - calculated from another implementation
+        [DataRow(956, 0, 3)]   
+        [DataRow(1106, 4, 10)]
         public async Task HeatLoss_IsMinimised_WhenCalculatingMostEfficientPath_FromFile(
             int expectedHeatLossOnJourney, 
             int minStraightLineDistance,

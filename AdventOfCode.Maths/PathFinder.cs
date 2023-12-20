@@ -23,6 +23,10 @@ namespace AdventOfCode
         }
 
         // This class represents the edge (Parent.Point, Point) and its a direction, thus is a vector
+        // It is also commonly referred to as the 'State' of a node in the algorithm, that is used to 
+        // determine the equality with other 'states' that have already been collected, and thus the 
+        // arbitrator of when we can terminate one of the paths we are considering
+
         public class PathNode
         {
             private PathNode? _parent;
