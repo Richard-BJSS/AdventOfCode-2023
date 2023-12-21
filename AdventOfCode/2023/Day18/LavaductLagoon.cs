@@ -1,5 +1,5 @@
-﻿using System.Drawing;
-using static AdventOfCode.Geometry;
+﻿using AdventOfCode.Maths.Geometry.Euclidean;
+using System.Drawing;
 
 namespace AdventOfCode._2023.Day18
 {
@@ -58,9 +58,9 @@ namespace AdventOfCode._2023.Day18
                 perimeter += length;
             }
 
-            var trench = new Geometry.Polygon([.. points]);
+            var trench = new Polygon([.. points]);
 
-            var internalArea = PicksTheorum.InternalAreaOfSimplePolygon(trench, perimeter);
+            var internalArea = Polygon.PicksTheorum.InternalAreaOfSimplePolygon(trench, perimeter);
 
             return internalArea + perimeter;
         }

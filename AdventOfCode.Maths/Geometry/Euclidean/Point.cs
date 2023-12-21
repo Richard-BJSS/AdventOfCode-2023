@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
 
-namespace AdventOfCode
+namespace AdventOfCode.Maths.Geometry.Euclidean
 {
-    public static partial class Geometry
+    public static partial class GeometryExtensions
     {
         public static Point RotateCCW(this Point pointToRotate, Point centreOfRotation = default) => new(pointToRotate.Y - centreOfRotation.Y + centreOfRotation.X, centreOfRotation.X - pointToRotate.X + centreOfRotation.Y);
 

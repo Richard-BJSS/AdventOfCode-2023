@@ -20,7 +20,7 @@ namespace AdventOfCode.Tests._2023.Day17
 
             var actualHeatLossOnJourney = path.Skip(1).Select(mtrx.ValueAt).Sum();
 
-            var visual = new Geometry.Polygon(path).Visualise();
+            var visual = new Polygon(path).Visualise();
 
             Assert.AreEqual(expectedHeatLossOnJourney, actualHeatLossOnJourney);
         }

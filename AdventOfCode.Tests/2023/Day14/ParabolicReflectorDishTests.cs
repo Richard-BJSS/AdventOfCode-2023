@@ -6,11 +6,11 @@ namespace AdventOfCode.Tests._2023.Day14
     public sealed class ParabolicReflectorDishTests
     {
         [DataTestMethod]
-        [DataRow(Geometry.Compass.North, "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", "OOOO.#.O..\r\nOO..#....#\r\nOO..O##..O\r\nO..#.OO...\r\n........#.\r\n..#....#.#\r\n..O..#.O.O\r\n..O.......\r\n#....###..\r\n#....#....")]
-        [DataRow(Geometry.Compass.South, "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", ".....#....\r\n....#....#\r\n...O.##...\r\n...#......\r\nO.O....O#O\r\nO.#..O.#.#\r\nO....#....\r\nOO....OO..\r\n#OO..###..\r\n#OO.O#...O")]
-        [DataRow(Geometry.Compass.West,  "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", "O....#....\r\nOOO.#....#\r\n.....##...\r\nOO.#OO....\r\nOO......#.\r\nO.#O...#.#\r\nO....#OO..\r\nO.........\r\n#....###..\r\n#OO..#....")]
-        [DataRow(Geometry.Compass.East,  "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", "....O#....\r\n.OOO#....#\r\n.....##...\r\n.OO#....OO\r\n......OO#.\r\n.O#...O#.#\r\n....O#..OO\r\n.........O\r\n#....###..\r\n#..OO#....")]
-        public void SlideRocks_CorrectlyAppliesOrientation_WhenCalculatingNewPositionOfRocks(Geometry.Compass compass, string rawPlatform, string expectedRawPlatform)
+        [DataRow(Compass.North, "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", "OOOO.#.O..\r\nOO..#....#\r\nOO..O##..O\r\nO..#.OO...\r\n........#.\r\n..#....#.#\r\n..O..#.O.O\r\n..O.......\r\n#....###..\r\n#....#....")]
+        [DataRow(Compass.South, "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", ".....#....\r\n....#....#\r\n...O.##...\r\n...#......\r\nO.O....O#O\r\nO.#..O.#.#\r\nO....#....\r\nOO....OO..\r\n#OO..###..\r\n#OO.O#...O")]
+        [DataRow(Compass.West,  "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", "O....#....\r\nOOO.#....#\r\n.....##...\r\nOO.#OO....\r\nOO......#.\r\nO.#O...#.#\r\nO....#OO..\r\nO.........\r\n#....###..\r\n#OO..#....")]
+        [DataRow(Compass.East,  "O....#....\r\nO.OO#....#\r\n.....##...\r\nOO.#O....O\r\n.O.....O#.\r\nO.#..O.#.#\r\n..O..#O..O\r\n.......O..\r\n#....###..\r\n#OO..#....", "....O#....\r\n.OOO#....#\r\n.....##...\r\n.OO#....OO\r\n......OO#.\r\n.O#...O#.#\r\n....O#..OO\r\n.........O\r\n#....###..\r\n#..OO#....")]
+        public void SlideRocks_CorrectlyAppliesOrientation_WhenCalculatingNewPositionOfRocks(Compass compass, string rawPlatform, string expectedRawPlatform)
         {
             var platform = rawPlatform.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 

@@ -26,7 +26,7 @@ namespace AdventOfCode.Tests._2023.Day13
             {
                 var rows = pattern.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-                var cols = Geometry.Rotate90CW(rows);
+                var cols = GeometryExtensions.Rotate90CW(rows);
 
                 var horizontal = PointOfIncidence.ReflectionScores(rows);
                 var vertical = PointOfIncidence.ReflectionScores(cols);
@@ -55,7 +55,7 @@ namespace AdventOfCode.Tests._2023.Day13
             {
                 var rows = rawPattern.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-                var cols = Geometry.Rotate90CW(rows);
+                var cols = GeometryExtensions.Rotate90CW(rows);
 
                 var horizontal = PointOfIncidence.ReflectionScores(rows);
                 var vertical = PointOfIncidence.ReflectionScores(cols);

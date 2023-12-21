@@ -1,7 +1,6 @@
-﻿using AdventOfCode.Maths;
+﻿using AdventOfCode.Maths.Geometry.Euclidean;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using static AdventOfCode.Geometry;
 
 namespace AdventOfCode._2023.Day17
 {
@@ -27,7 +26,7 @@ namespace AdventOfCode._2023.Day17
 
             var pathFinder = new ClumsyCrucible.ConstrainedPathFinder(HeatLossMap, minStraightLineDistance, maxStraightLineDistance);
 
-            return pathFinder.LocatePath(lavaPool, machinePartsFactory, Geometry.Compass.News);
+            return pathFinder.LocatePath(lavaPool, machinePartsFactory, Compass.News);
         }
 
 

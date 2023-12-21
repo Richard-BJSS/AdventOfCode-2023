@@ -1,7 +1,7 @@
-﻿using AdventOfCode.Maths;
+﻿using AdventOfCode.Maths.Geometry.Euclidean;
 using System.Drawing;
 
-namespace AdventOfCode.Maths
+namespace AdventOfCode.Maths.Geometry.Euclidean
 {
     // TODO: 
     // 1. Matrix is a specialised Directed Graph - add appropriate Base Class
@@ -16,26 +16,26 @@ namespace AdventOfCode.Maths
 
         public static implicit operator T[,](Matrix<T> matrix) => matrix._entries;
         public static implicit operator T[][](Matrix<T> matrix) => matrix._entries.ToJaggedArray();
-        public static implicit operator Matrix<T> (T[,] entries) => new (entries);
-        public static implicit operator Matrix<T>(T[][] entries) => new (entries);
+        public static implicit operator Matrix<T>(T[,] entries) => new(entries);
+        public static implicit operator Matrix<T>(T[][] entries) => new(entries);
 
-        public Rectangle Rectangle => new (Origin, Size);  
+        public Rectangle Rectangle => new(Origin, Size);
 
-        public Size Size => new (entries.GetLength(0), _entries.GetLength(1));
+        public Size Size => new(_entries.GetLength(0), _entries.GetLength(1));
 
         public Point Origin { get; set; } = Point.Empty;
 
         public T[] RowAt(int index) => (_jaggedEntries ??= _entries.ToJaggedArray())[index];
 
-        public T? ValueAt(Point pt) => entries[pt.X + Origin.X, pt.Y + Origin.Y];
-        public T? ValueAt(int x, int y) => entries[x + Origin.X, y + Origin.Y];
+        public T? ValueAt(Point pt) => _entries[pt.X + Origin.X, pt.Y + Origin.Y];
+        public T? ValueAt(int x, int y) => _entries[x + Origin.X, y + Origin.Y];
 
-        public T[][] Rotate90CW() => Geometry.Rotate90CW(_entries);
-        public T[][] Rotate90CCW() => Geometry.Rotate90CCW(_entries);
+        public T[][] Rotate90CW() => _entries.Rotate90CW();
+        public T[][] Rotate90CCW() => _entries.Rotate90CCW();
 
-        public IEnumerable<Point> Entries(Predicate<Point> predicate) 
+        public IEnumerable<Point> Entries(Predicate<Point> predicate)
         {
-            for (var x = 0;  x < _entries.GetLength(0); x++)
+            for (var x = 0; x < _entries.GetLength(0); x++)
             {
                 for (var y = 0; y < _entries.GetLength(1); y++)
                 {
@@ -48,9 +48,9 @@ namespace AdventOfCode.Maths
     }
 }
 
-namespace AdventOfCode
+namespace AdventOfCode.Maths.Geometry.Euclidean
 {
-    public static partial class Geometry
+    public static partial class GeometryExtensions
     {
         public static Matrix<T> ToMatrix<T>(this T[][] source)
         {
@@ -110,11 +110,11 @@ namespace AdventOfCode
         public static char[,] ToRectangularArray(this string[] source) => source.Select(s => s.ToCharArray()).ToRectangularArray();
         public static char[,] ToRectangularArray(this IEnumerable<char[]> source) => source.ToArray().ToRectangularArray();
 
-        public static IEnumerable<string> Rotate90CW(this IEnumerable<string> source) => Rotate90CW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs));
-        public static IEnumerable<string> Rotate90CCW(this IEnumerable<string> source) => Rotate90CCW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs));
+        public static IEnumerable<string> Rotate90CW(this IEnumerable<string> source) => source.Select(s => s.ToCharArray()).ToArray().Rotate90CW().Select(cs => new string(cs));
+        public static IEnumerable<string> Rotate90CCW(this IEnumerable<string> source) => source.Select(s => s.ToCharArray()).ToArray().Rotate90CCW().Select(cs => new string(cs));
 
-        public static string[] Rotate90CW(this string[] source) => Rotate90CW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs)).ToArray();
-        public static string[] Rotate90CCW(this string[] source) => Rotate90CCW(source.Select(s => s.ToCharArray()).ToArray()).Select(cs => new string(cs)).ToArray();
+        public static string[] Rotate90CW(this string[] source) => source.Select(s => s.ToCharArray()).ToArray().Rotate90CW().Select(cs => new string(cs)).ToArray();
+        public static string[] Rotate90CCW(this string[] source) => source.Select(s => s.ToCharArray()).ToArray().Rotate90CCW().Select(cs => new string(cs)).ToArray();
 
         public static T[][] Rotate90CW<T>(this T[,] source) => ArrayExtensions.Zip(source.ToJaggedArray()).Select(m => m.Reverse().ToArray()).ToArray();
         public static T[][] Rotate90CCW<T>(this T[,] source) => ArrayExtensions.Zip(source.ToJaggedArray()).Reverse().ToArray();
@@ -122,14 +122,14 @@ namespace AdventOfCode
         public static T[][] Rotate90CW<T>(this T[][] source) => ArrayExtensions.Zip(source).Select(m => m.Reverse().ToArray()).ToArray();
         public static T[][] Rotate90CCW<T>(this T[][] source) => ArrayExtensions.Zip(source).Reverse().ToArray();
 
-        public static IEnumerable<string> Rotate180(IEnumerable<string> source) => source.FlipHorizontally().FlipVertically();
-        public static string[] Rotate180(string[] source) => source.FlipHorizontally().FlipVertically().ToArray();
-            
+        public static IEnumerable<string> Rotate180(this IEnumerable<string> source) => source.FlipHorizontally().FlipVertically();
+        public static string[] Rotate180(this string[] source) => source.FlipHorizontally().FlipVertically().ToArray();
+
         public static IEnumerable<string> FlipVertically(this IEnumerable<string> source) => source.Reverse();
         public static IEnumerable<string> FlipHorizontally(this IEnumerable<string> source) => source.Select(s => new string(s.Reverse().ToArray()));
 
         public static int ManhattanDistance(Point a, Point b) => Math.Abs(b.X - a.X) + Math.Abs(b.Y - a.Y);
-        public static int ChebyshevDistance(Point a, Point b) => Math.Max(Math.Abs(b.X - a.X), Math.Abs(b.Y - a.Y)); 
+        public static int ChebyshevDistance(Point a, Point b) => Math.Max(Math.Abs(b.X - a.X), Math.Abs(b.Y - a.Y));
 
     }
 

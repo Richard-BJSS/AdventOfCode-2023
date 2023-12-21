@@ -30,8 +30,6 @@
 
             var expandedGalaxy = yss.ToMatrix();
 
-            var compass = Geometry.Compass.North | Geometry.Compass.East | Geometry.Compass.South | Geometry.Compass.West;
-
             var edge = expandedGalaxy.Entries(
                 pt => char.IsNumber(expandedGalaxy.ValueAt(pt)) && (int.Parse([expandedGalaxy.ValueAt(pt)]) == galaxyFrom || 
                       int.Parse([expandedGalaxy.ValueAt(pt)]) == galaxyTo)
@@ -39,9 +37,9 @@
 
             Assert.AreEqual(2, edge.Length);
 
-            var pathFinder = new Geometry.AStarPathFinder<char>(expandedGalaxy);
+            var pathFinder = new AStarPathFinder<char>(expandedGalaxy);
 
-            var actualPathLength = pathFinder.LocatePath(edge[0], edge[1], compass).Length - 1;
+            var actualPathLength = pathFinder.LocatePath(edge[0], edge[1], Compass.News).Length - 1;
 
             Assert.AreEqual(expectedPathLength, actualPathLength);
         }

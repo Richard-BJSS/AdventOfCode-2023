@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode._2023.Day14
+﻿using AdventOfCode.Maths.Geometry.Euclidean;
+
+namespace AdventOfCode._2023.Day14
 {
     public static class ParabolicReflectorDish
     {
@@ -42,35 +44,35 @@
 
         public static string[] SpinThroughOneCycle(string[] platform)
         {
-            platform = SlideRocks(platform, Geometry.Compass.North);
-            platform = SlideRocks(platform, Geometry.Compass.West);
-            platform = SlideRocks(platform, Geometry.Compass.South);
-            platform = SlideRocks(platform, Geometry.Compass.East);
+            platform = SlideRocks(platform, Compass.North);
+            platform = SlideRocks(platform, Compass.West);
+            platform = SlideRocks(platform, Compass.South);
+            platform = SlideRocks(platform, Compass.East);
 
             return platform;
         }
 
-        public static string[] SlideRocks(string[] platform, Geometry.Compass compass = Geometry.Compass.North)
+        public static string[] SlideRocks(string[] platform, Compass compass = Compass.North)
         {
             var reverser = default(Func<IEnumerable<string>, IEnumerable<string>>);
 
-            if (compass == Geometry.Compass.North)
+            if (compass == Compass.North)
             {
-                platform = Geometry.Rotate90CCW(platform);
-                reverser = Geometry.Rotate90CW;
+                platform = platform.Rotate90CCW();
+                reverser = GeometryExtensions.Rotate90CW;
             }
-            else if (compass == Geometry.Compass.West)
+            else if (compass == Compass.West)
             {
             }
-            else if (compass == Geometry.Compass.South)
+            else if (compass == Compass.South)
             {
-                platform = Geometry.Rotate90CW(platform);
-                reverser = Geometry.Rotate90CCW;
+                platform = platform.Rotate90CW();
+                reverser = GeometryExtensions.Rotate90CCW;
             }
-            else if (compass == Geometry.Compass.East)
+            else if (compass == Compass.East)
             {
-                platform = Geometry.Rotate180(platform);
-                reverser = Geometry.Rotate180;
+                platform = platform.Rotate180();
+                reverser = GeometryExtensions.Rotate180;
             }
 
             platform = platform.Select(s =>

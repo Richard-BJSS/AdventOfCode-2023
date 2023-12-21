@@ -64,7 +64,7 @@ namespace AdventOfCode.Tests._2023.Day10
 
             var pointsAlongPath = paths[0].LocationsVisited;
 
-            var polygon = new Geometry.Polygon([.. pointsAlongPath]);
+            var polygon = new Polygon([.. pointsAlongPath]);
 
             var w = rawMap[0].Length;
             var h = rawMap.Length;
@@ -79,7 +79,7 @@ namespace AdventOfCode.Tests._2023.Day10
 
                     var expectedIsInternal = (c == 'I');
 
-                    if (Geometry.WindingNumberAlgorithm.IsPointLocatedInsidePolygon(new Point(x, y), polygon))
+                    if (Polygon.WindingNumberAlgorithm.IsPointLocatedInsidePolygon(new Point(x, y), polygon))
                     {
                         internalPoints++;
                     }
@@ -133,7 +133,7 @@ namespace AdventOfCode.Tests._2023.Day10
             
             _ = path.ContinueUntil(p => p.Ticks > 0 && p.CurrentLocation == start);
 
-            var polygon = new Geometry.Polygon(path.LocationsVisited.ToArray());
+            var polygon = new Polygon(path.LocationsVisited.ToArray());
 
             var w = rawMap[0].Length;
             var h = rawMap.Length;
@@ -146,12 +146,11 @@ namespace AdventOfCode.Tests._2023.Day10
 
                     var expectedIsInternal = (c == 'I');
 
-                    var actualIsInternal = Geometry.WindingNumberAlgorithm.IsPointLocatedInsidePolygon(new Point(x, y), polygon);
+                    var actualIsInternal = Polygon.WindingNumberAlgorithm.IsPointLocatedInsidePolygon(new Point(x, y), polygon);
 
                     Assert.AreEqual(expectedIsInternal, actualIsInternal);
                 }
             }
         }
-
     }
 }

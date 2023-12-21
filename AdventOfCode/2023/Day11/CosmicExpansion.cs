@@ -1,4 +1,4 @@
-﻿using AdventOfCode.Maths;
+﻿using AdventOfCode.Maths.Geometry.Euclidean;
 
 namespace AdventOfCode._2023.Day11
 {
@@ -26,9 +26,9 @@ namespace AdventOfCode._2023.Day11
 
             var total = 0L;
 
-            foreach (var (fst, snd) in edges.Distinct(Geometry.EdgeEqualityComparer.BiDirectional))
+            foreach (var (fst, snd) in edges.Distinct(Polygon.EdgeEqualityComparer.BiDirectional))
             {
-                var distance = Geometry.ManhattanDistance(fst, snd);
+                var distance = GeometryExtensions.ManhattanDistance(fst, snd);
 
                 var minY = Math.Min(fst.Y, snd.Y);
                 var maxY = Math.Max(fst.Y, snd.Y);

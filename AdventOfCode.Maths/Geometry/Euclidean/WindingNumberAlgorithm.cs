@@ -1,8 +1,8 @@
 ﻿using System.Drawing;
 
-namespace AdventOfCode
+namespace AdventOfCode.Maths.Geometry.Euclidean
 {
-    public static partial class Geometry
+    public partial class Polygon
     {
         public static class WindingNumberAlgorithm
         {
