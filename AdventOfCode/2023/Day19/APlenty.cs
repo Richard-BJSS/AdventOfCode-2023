@@ -98,13 +98,13 @@
 
                 if (!conditionIsMet) continue;
 
-                var acceptedCount = 0L;
+                var tasks = new List<Task<long>>(2);
 
                 if (accepted.Max - accepted.Min > 0)
                 {
                     var acceptedBranch = new Dictionary<char, (int, int)>(rangedPartRatings) { [rating] = accepted };
 
-                    acceptedCount = workflow.CountOfAcceptableRatings(workflows, acceptedBranch);
+                    tasks.Add(Task.Run(() => workflow.CountOfAcceptableRatings(workflows, acceptedBranch)));
                 }
 
                 var rejections = CalculateRejectedRange(original, accepted);
@@ -113,10 +113,12 @@
                 {
                     var rejectionBranch = new Dictionary<char, (int, int)>(rangedPartRatings) { [rating] = rejections };
 
-                    acceptedCount += CountOfAcceptableRatings(workflows, rejectionBranch);
+                    tasks.Add(Task.Run(() => CountOfAcceptableRatings(workflows, rejectionBranch)));
                 }
 
-                return acceptedCount;
+                Task.WaitAll(tasks.ToArray());
+                
+                return tasks.Sum(t => t.Result);
             }
 
             return 0L;

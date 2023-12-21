@@ -82,6 +82,9 @@
     <None Update="2023\Day19\A-Plenty-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="2023\Day20\Pulse-Propagation-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
