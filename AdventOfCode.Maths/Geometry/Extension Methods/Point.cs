@@ -5,8 +5,17 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
     public static partial class PointExtensions
     {
         public static int ManhattanDistance(Point a, Point b) => Math.Abs(b.X - a.X) + Math.Abs(b.Y - a.Y);
+        public static int ManhattanDistance(Point3D a, Point3D b) => Math.Abs(b.X - a.X) + Math.Abs(b.Y - a.Y) + Math.Abs(b.Z - a.Z);
 
         public static int ChebyshevDistance(Point a, Point b) => Math.Max(Math.Abs(b.X - a.X), Math.Abs(b.Y - a.Y));
+        public static int ChebyshevDistance(Point3D a, Point3D b)
+        {            
+            var dx = Math.Abs(a.X - b.X);
+            var dy = Math.Abs(a.Y - b.Y);
+            var dz = Math.Abs(a.Z - b.Z);
+
+            return new[] { dx, dy, dz }.Max();
+        }
 
         public static Point RotateCCW(this Point pointToRotate, Point centreOfRotation = default) => new(pointToRotate.Y - centreOfRotation.Y + centreOfRotation.X, centreOfRotation.X - pointToRotate.X + centreOfRotation.Y);
 

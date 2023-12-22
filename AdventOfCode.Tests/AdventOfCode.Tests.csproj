@@ -88,6 +88,9 @@
     <None Update="2023\Day21\Step-Counter-File.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="2023\Day22\Sand-Slab-File.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
