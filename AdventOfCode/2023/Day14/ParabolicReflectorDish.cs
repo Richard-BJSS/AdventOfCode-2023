@@ -59,7 +59,7 @@ namespace AdventOfCode._2023.Day14
             if (compass == Compass.North)
             {
                 platform = platform.Rotate90CCW();
-                reverser = GeometryExtensions.Rotate90CW;
+                reverser = EnumerableExtensions.Rotate90CW;
             }
             else if (compass == Compass.West)
             {
@@ -67,12 +67,12 @@ namespace AdventOfCode._2023.Day14
             else if (compass == Compass.South)
             {
                 platform = platform.Rotate90CW();
-                reverser = GeometryExtensions.Rotate90CCW;
+                reverser = EnumerableExtensions.Rotate90CCW;
             }
             else if (compass == Compass.East)
             {
                 platform = platform.Rotate180();
-                reverser = GeometryExtensions.Rotate180;
+                reverser = EnumerableExtensions.Rotate180;
             }
 
             platform = platform.Select(s =>

@@ -3,7 +3,6 @@
     public static partial class FuncExtensions
     {
         public static Func<T, R> Memoize<T, R>(this Func<T, R> func)
-            where T : class
         {
             var d = new Dictionary<T, R>();
 
@@ -11,7 +10,6 @@
         }
 
         public static Func<T, R> Memoize<T, R>(this Func<T, R> func, IEqualityComparer<T> comparer)
-            where T : class
         {
             var d = new Dictionary<T, R>(comparer);
 
@@ -19,8 +17,6 @@
         }
 
         public static Func<T, R> Memoize<T, R, K>(this Func<T, R> func, Func<T, K> keySelector)
-            where T : class
-            where K : class
         {
             var d = new Dictionary<K, R>();
 

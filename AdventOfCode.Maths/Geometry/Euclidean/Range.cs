@@ -3,12 +3,6 @@ using System.Numerics;
 
 namespace AdventOfCode.Maths.Geometry.Euclidean
 {
-    /// <summary>
-    /// A generic 'interval' value type that can be used to capture a 'range' of inclusive values
-    /// </summary>
-    /// <typeparam name="T">The type of 'value' whose range is represented by this type</typeparam>
-    /// <param name="min">The lowest 'value' in the range</param>
-    /// <param name="max">The highest 'value' in the range</param>
     public readonly struct Range<T>(T min, T max) 
         : IEnumerable<T>, 
           IEquatable<Range<T>>

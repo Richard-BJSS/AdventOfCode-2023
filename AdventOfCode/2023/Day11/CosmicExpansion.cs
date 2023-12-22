@@ -17,7 +17,7 @@ namespace AdventOfCode._2023.Day11
 
             var matrix = new Matrix<char>(mx);
 
-            var galaxies = matrix.Entries(pt => matrix.ValueAt(pt) == '#').ToArray();
+            var galaxies = matrix.Where(e => e.Value == '#').Select(e => e.Point).ToArray();
 
             var edges = from g1 in galaxies
                         from g2 in galaxies
@@ -28,7 +28,7 @@ namespace AdventOfCode._2023.Day11
 
             foreach (var (fst, snd) in edges.Distinct(Polygon.EdgeEqualityComparer.BiDirectional))
             {
-                var distance = GeometryExtensions.ManhattanDistance(fst, snd);
+                var distance = PointExtensions.ManhattanDistance(fst, snd);
 
                 var minY = Math.Min(fst.Y, snd.Y);
                 var maxY = Math.Max(fst.Y, snd.Y);

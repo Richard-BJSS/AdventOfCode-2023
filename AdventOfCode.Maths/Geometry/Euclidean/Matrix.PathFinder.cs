@@ -74,20 +74,22 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
 
         public abstract Point[] LocatePath(Point startFrom, Point endAt, Compass compass = Compass.Default);
 
-        protected virtual IEnumerable<N> NodesAdjacentTo(N node, Compass compass)
-        {
-            var x = node.Point.X;
-            var y = node.Point.Y;
+        protected virtual IEnumerable<N> NodesAdjacentTo(N node, Compass compass) => 
+            node.Point.PointsAdjacentTo(compass)
+                      .Select(adj => new N() { Point = adj.Point, Direction = adj.Direction });
+        //{
+        //    var x = node.Point.X;
+        //    var y = node.Point.Y;
 
-            if (((compass & Compass.North) ==     Compass.North))     yield return new N() { Point = new(x + 0, y - 1), Direction = new( 0, -1) };
-            if (((compass & Compass.NorthEast) == Compass.NorthEast)) yield return new N() { Point = new(x + 1, y - 1), Direction = new(+1, -1) };
-            if (((compass & Compass.East) ==      Compass.East))      yield return new N() { Point = new(x + 1, y + 0), Direction = new(+1,  0) };
-            if (((compass & Compass.SouthEast) == Compass.SouthEast)) yield return new N() { Point = new(x + 1, y + 1), Direction = new(+1, +1) };
-            if (((compass & Compass.South) ==     Compass.South))     yield return new N() { Point = new(x + 0, y + 1), Direction = new( 0, +1) };
-            if (((compass & Compass.SouthWest) == Compass.SouthWest)) yield return new N() { Point = new(x - 1, y + 1), Direction = new(-1, +1) };
-            if (((compass & Compass.West) ==      Compass.West))      yield return new N() { Point = new(x - 1, y + 0), Direction = new(-1,  0) };
-            if (((compass & Compass.NorthWest) == Compass.NorthWest)) yield return new N() { Point = new(x - 1, y - 1), Direction = new(-1, -1) };
-        }
+        //    if (((compass & Compass.North) ==     Compass.North))     yield return new N() { Point = new(x + 0, y - 1), Direction = new( 0, -1) };
+        //    if (((compass & Compass.NorthEast) == Compass.NorthEast)) yield return new N() { Point = new(x + 1, y - 1), Direction = new(+1, -1) };
+        //    if (((compass & Compass.East) ==      Compass.East))      yield return new N() { Point = new(x + 1, y + 0), Direction = new(+1,  0) };
+        //    if (((compass & Compass.SouthEast) == Compass.SouthEast)) yield return new N() { Point = new(x + 1, y + 1), Direction = new(+1, +1) };
+        //    if (((compass & Compass.South) ==     Compass.South))     yield return new N() { Point = new(x + 0, y + 1), Direction = new( 0, +1) };
+        //    if (((compass & Compass.SouthWest) == Compass.SouthWest)) yield return new N() { Point = new(x - 1, y + 1), Direction = new(-1, +1) };
+        //    if (((compass & Compass.West) ==      Compass.West))      yield return new N() { Point = new(x - 1, y + 0), Direction = new(-1,  0) };
+        //    if (((compass & Compass.NorthWest) == Compass.NorthWest)) yield return new N() { Point = new(x - 1, y - 1), Direction = new(-1, -1) };
+        //}
 
         protected virtual bool IsObstacle(N movingFrom, N movingTo) => false;
 
@@ -106,7 +108,7 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
                 Point = startFrom,
                 Direction = Point.Empty,
                 RollingCost = 0,
-                Heuristic = GeometryExtensions.ChebyshevDistance(startFrom, endAt)
+                Heuristic = PointExtensions.ChebyshevDistance(startFrom, endAt)
             };
 
             var open = new PriorityQueue<N, int?>([(start, default)]);
@@ -149,7 +151,7 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
                     // the Manhattan Distance (appropriate heuristic if only moving NEWS on the compass)
 
                     adj.Weight = costOfGettingToAdjNodeFromLowestCostNode;
-                    adj.Heuristic = GeometryExtensions.ChebyshevDistance(adj.Point, endAt);
+                    adj.Heuristic = PointExtensions.ChebyshevDistance(adj.Point, endAt);
                     adj.RollingCost = lowestCostNode.RollingCost + costOfGettingToAdjNodeFromLowestCostNode;
                     adj.Parent = lowestCostNode;
 

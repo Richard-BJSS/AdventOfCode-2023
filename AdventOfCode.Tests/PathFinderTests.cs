@@ -30,10 +30,10 @@
 
             var expandedGalaxy = yss.ToMatrix();
 
-            var edge = expandedGalaxy.Entries(
-                pt => char.IsNumber(expandedGalaxy.ValueAt(pt)) && (int.Parse([expandedGalaxy.ValueAt(pt)]) == galaxyFrom || 
-                      int.Parse([expandedGalaxy.ValueAt(pt)]) == galaxyTo)
-                      ).ToArray();
+            var edge = expandedGalaxy
+                .Where(e => char.IsNumber(e.Value) && (int.Parse([e.Value]) == galaxyFrom || int.Parse([e.Value]) == galaxyTo))
+                .Select(e => e.Point)
+                .ToArray();
 
             Assert.AreEqual(2, edge.Length);
 

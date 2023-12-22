@@ -67,8 +67,6 @@ namespace AdventOfCode._2023.Day20
         public override string ToString() => $"{Source.Name} [{Source.GetType().Name}] send {(IsHigh ? "High" : "Low")} signal to {Destination.Name} [{Destination.GetType().Name}]";
     }
 
-    public record struct SimulationResult(IReadOnlyDictionary<bool, long> Pulses, RxModule? Rx);
-
     public sealed class Network(IDictionary<string, Module> Modules)
     {
         public static async Task<Network> ParseAsync(IAsyncEnumerable<string> rawModules)
@@ -103,7 +101,7 @@ namespace AdventOfCode._2023.Day20
             return new(modules);
         }
 
-        public SimulationResult Simulate(int numOfButtonPresses)
+        public (IReadOnlyDictionary<bool, long> Pulses, RxModule Rx) RepeatBroadcast(int numOfTimes)
         {
             var pulseCounter = new Dictionary<bool, long>(2) { [false] = 0, [true] = 0 };
 
@@ -115,7 +113,7 @@ namespace AdventOfCode._2023.Day20
 
             if (Modules.TryGetValue("rx", out var rx)) rxModule = (RxModule)rx;
 
-            for (var btn = 0; btn < numOfButtonPresses; btn++)
+            for (var broadcastIdx = 0; broadcastIdx < numOfTimes; broadcastIdx++)
             {
                 var pulses = new Queue<Pulse>([new(false, button, Modules["broadcaster"])]);
 
@@ -127,9 +125,18 @@ namespace AdventOfCode._2023.Day20
 
                     if (pulse.IsHigh && pulse.Destination is Conjunction con && !con.ValueFor(pulse.Source))
                     {
+                        // For Part 2 of the puzzle, identify each time we send a High Pulse to a Conjunction
+                        // where said Conjunction last saw a Low Pulse from the Input module.  Record the 
+                        // index in the broadcast cycle when this took place.
+                        // At the end of the cycle, we will be able to identify the Rx Module and all of the 
+                        // conjunctions that feed into it.  If we take the difference between the last time
+                        // the conjunction fed into the Rx Module, and the previous time it did so, and then 
+                        // find the lowest common multiple of all of these input cycles, we should have solved 
+                        // the puzzle!
+
                         if (!counters.TryGetValue(con.Name, out var cntrs)) counters[con.Name] = cntrs = [];
 
-                        counters[con.Name].Add(btn + 1);
+                        counters[con.Name].Add(broadcastIdx + 1);
                     }
 
                     var broadcastHighPulse = pulse.Destination.BroadcastHighPulse(pulse);

@@ -14,7 +14,7 @@ namespace AdventOfCode.Tests._2023.Day20
 
             var network = await Network.ParseAsync(rawModules.ToAsyncEnumerable());
 
-            var simResult = network.Simulate(1);
+            var simResult = network.RepeatBroadcast(1);
 
             Assert.AreEqual(4, simResult.Pulses.Where(kvp => kvp.Key).Sum(kvp => kvp.Value));
             Assert.AreEqual(8, simResult.Pulses.Where(kvp => !kvp.Key).Sum(kvp => kvp.Value));
@@ -35,7 +35,7 @@ namespace AdventOfCode.Tests._2023.Day20
 
             var network = await Network.ParseAsync(rawModules.ToAsyncEnumerable());
 
-            var simResult = network.Simulate(btnCnt);
+            var simResult = network.RepeatBroadcast(btnCnt);
 
             Assert.AreEqual(4 * btnCnt, simResult.Pulses.Where(kvp => kvp.Key).Sum(kvp => kvp.Value));
             Assert.AreEqual(8 * btnCnt, simResult.Pulses.Where(kvp => !kvp.Key).Sum(kvp => kvp.Value));
@@ -54,22 +54,22 @@ namespace AdventOfCode.Tests._2023.Day20
 
             var network = await Network.ParseAsync(rawModules.ToAsyncEnumerable());
 
-            var simResult = network.Simulate(1);
+            var simResult = network.RepeatBroadcast(1);
 
             Assert.AreEqual(4 * 1, simResult.Pulses.Where(kvp => kvp.Key).Sum(kvp => kvp.Value));
             Assert.AreEqual(4 * 1, simResult.Pulses.Where(kvp => !kvp.Key).Sum(kvp => kvp.Value));
 
-            simResult = network.Simulate(1);
+            simResult = network.RepeatBroadcast(1);
 
             Assert.AreEqual(2 * 1, simResult.Pulses.Where(kvp => kvp.Key).Sum(kvp => kvp.Value));
             Assert.AreEqual(4 * 1, simResult.Pulses.Where(kvp => !kvp.Key).Sum(kvp => kvp.Value));
 
-            simResult = network.Simulate(1);
+            simResult = network.RepeatBroadcast(1);
 
             Assert.AreEqual(3 * 1, simResult.Pulses.Where(kvp => kvp.Key).Sum(kvp => kvp.Value));
             Assert.AreEqual(5 * 1, simResult.Pulses.Where(kvp => !kvp.Key).Sum(kvp => kvp.Value));
 
-            simResult = network.Simulate(1);
+            simResult = network.RepeatBroadcast(1);
 
             Assert.AreEqual(2 * 1, simResult.Pulses.Where(kvp => kvp.Key).Sum(kvp => kvp.Value));
             Assert.AreEqual(4 * 1, simResult.Pulses.Where(kvp => !kvp.Key).Sum(kvp => kvp.Value));
@@ -84,7 +84,7 @@ namespace AdventOfCode.Tests._2023.Day20
 
             var network = await Network.ParseAsync(rawModuleConfig);
 
-            var simResult = network.Simulate(1000);
+            var simResult = network.RepeatBroadcast(1000);
 
             var actualResult = simResult.Pulses.Values.Aggregate(1L, (product, cnt) => product * cnt);
 
@@ -100,7 +100,7 @@ namespace AdventOfCode.Tests._2023.Day20
 
             var network = await Network.ParseAsync(rawModuleConfig);
 
-            var simResult = network.Simulate(25000);
+            var simResult = network.RepeatBroadcast(25000);
 
             var rx = simResult.Rx;
 

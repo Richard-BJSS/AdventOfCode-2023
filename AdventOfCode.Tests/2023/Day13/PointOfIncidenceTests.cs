@@ -2,6 +2,8 @@
 
 namespace AdventOfCode.Tests._2023.Day13
 {
+    // TODO - refactor to use a Reflection Matrix (once I add the type)
+
     [TestClass]
     public sealed class PointOfIncidenceTests
     {
@@ -26,7 +28,7 @@ namespace AdventOfCode.Tests._2023.Day13
             {
                 var rows = pattern.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-                var cols = GeometryExtensions.Rotate90CW(rows);
+                var cols = rows.Rotate90CW();
 
                 var horizontal = PointOfIncidence.ReflectionScores(rows);
                 var vertical = PointOfIncidence.ReflectionScores(cols);
@@ -55,7 +57,7 @@ namespace AdventOfCode.Tests._2023.Day13
             {
                 var rows = rawPattern.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
-                var cols = GeometryExtensions.Rotate90CW(rows);
+                var cols = rows.Rotate90CW();
 
                 var horizontal = PointOfIncidence.ReflectionScores(rows);
                 var vertical = PointOfIncidence.ReflectionScores(cols);
