@@ -2,7 +2,7 @@
 
 namespace AdventOfCode.Utility
 {
-    public sealed class DictionaryWithDefault<K, V>(Func<K, V> factory) 
+    public sealed class LazyDictionary<K, V>(Func<K, V> factory) 
         : IDictionary<K, V> where K : notnull
     {
         private readonly Dictionary<K, V> _dictionary = [];

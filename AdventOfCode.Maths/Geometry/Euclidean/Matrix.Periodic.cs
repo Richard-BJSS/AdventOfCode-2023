@@ -19,8 +19,8 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
         }
 
         private static Point ToLocal(Point pt, Matrix<T> matrix) =>
-            new(x: (pt.X - matrix.Origin.X).Modulo(matrix.Size.Width),
-                y: (pt.Y - matrix.Origin.Y).Modulo(matrix.Size.Height));
+            new(x: (pt.X - matrix.Offset.X).Modulo(matrix.Size.Width),
+                y: (pt.Y - matrix.Offset.Y).Modulo(matrix.Size.Height));
 
     }
 }

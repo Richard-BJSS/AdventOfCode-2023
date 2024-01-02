@@ -100,11 +100,9 @@ namespace AdventOfCode.Tests._2023.Day20
 
             var network = await Network.ParseAsync(rawModuleConfig);
 
-            var simResult = network.RepeatBroadcast(25000);
+            var (_, rx) = network.RepeatBroadcast(25000);
 
-            var rx = simResult.Rx;
-
-            Assert.IsNotNull(rx);
+            Assert.IsNotNull(rx?.Counters);
 
             var cycles = rx.InboundModules.Select(m => rx.Counters[m.Name][^1] - rx.Counters[m.Name][^2]);
 

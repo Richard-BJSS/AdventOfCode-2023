@@ -2,13 +2,13 @@
 
 namespace AdventOfCode.Maths.Geometry.Euclidean
 {
-    // Used to represent the bounding box that encapsulates a 3D 'cube' on the X, Y and Z planes
+    // Used to represent the bounding box that encapsulates a 3D 'box shape' on the X, Y and Z planes
 
-    public readonly struct BoundingBox3D
+    public readonly struct Box3D
         : IEnumerable<Point3D>,
-          IEquatable<BoundingBox3D>
+          IEquatable<Box3D>
     {
-        public BoundingBox3D(IEnumerable<Point3D> extents, bool inclusive)
+        public Box3D(IEnumerable<Point3D> extents, bool inclusive)
         {
             var delta = inclusive ? 0 : 1;
 
@@ -25,7 +25,7 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
                 );
         }
 
-        private BoundingBox3D(Point3D min, Point3D max) { Min = min; Max = max; }
+        private Box3D(Point3D min, Point3D max) { Min = min; Max = max; }
 
         public Point3D Min { get; init; }
         public Point3D Max { get; init; }
@@ -41,9 +41,9 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
         public int LengthY => MaxY - MinY + 1;
         public int LengthZ => MaxZ - MinZ + 1;
 
-        public BoundingBox3D Shift(Point3D amount) => new(min: Min + amount, max: Max + amount);
+        public Box3D Shift(Point3D amount) => new(min: Min + amount, max: Max + amount);
 
-        //public BoundingBox3D(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
+        //public Box3D(int xMin, int xMax, int yMin, int yMax, int zMin, int zMax)
         //{
         //    Min = new Point3D(xMin, yMin, zMin);
         //    Max = new Point3D(xMax, yMax, zMax);
@@ -52,7 +52,7 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
         //public long Volume => (long)XLength * YLength * ZLength;
         //public Point3D Center => new(x: (XMin + XMax) / 2, y: (YMin + YMax) / 2, z: (ZMin + ZMax) / 2);
 
-        //public static bool Intersection(BoundingBox3D a, BoundingBox3D b, out BoundingBox3D intersect)
+        //public static bool Intersection(Box3D a, Box3D b, out Box3D intersect)
         //{
         //    var hasOverlap =
         //        a.XMax >= b.XMin && a.XMin <= b.XMax &&
@@ -67,7 +67,7 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
         //    var yLimits = new[] { a.YMin, a.YMax, b.YMin, b.YMax }.Order().ToList();
         //    var zLimits = new[] { a.ZMin, a.ZMax, b.ZMin, b.ZMax }.Order().ToList();
         //
-        //    intersect = new BoundingBox3D(
+        //    intersect = new Box3D(
         //        xMin: xLimits[1],
         //        xMax: xLimits[2],
         //        yMin: yLimits[1],
@@ -85,11 +85,11 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
 
         //private bool ContainsExclusive(Point3D pos) => pos.X > XMin && pos.X < XMax && pos.Y > YMin && pos.Y < YMax && pos.Z > ZMin && pos.Z < ZMax;
 
-        //public static BoundingBox3D CubeCenteredAt(Point3D center, int extent)
+        //public static Box3D CubeCenteredAt(Point3D center, int extent)
         //{
         //    if (extent < 0) throw new ArgumentOutOfRangeException(nameof(extent), extent, "must be > 0");
         //
-        //    return new BoundingBox3D(
+        //    return new Box3D(
         //        xMin: center.X - extent,
         //        xMax: center.X + extent,
         //        yMin: center.Y - extent,
@@ -109,14 +109,14 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public bool Equals(BoundingBox3D other) => MinX == other.MinX && MaxX == other.MaxX && MinY == other.MinY && MaxY == other.MaxY && MinZ == other.MinZ && MaxZ == other.MaxZ;
-        public override bool Equals(object? obj) => obj is BoundingBox3D other && Equals(other);
+        public bool Equals(Box3D other) => MinX == other.MinX && MaxX == other.MaxX && MinY == other.MinY && MaxY == other.MaxY && MinZ == other.MinZ && MaxZ == other.MaxZ;
+        public override bool Equals(object? obj) => obj is Box3D other && Equals(other);
 
         public override int GetHashCode() => HashCode.Combine(MinX, MaxX, MinY, MaxY, MinZ, MaxZ);
 
-        public static bool operator ==(BoundingBox3D lhs, BoundingBox3D rhs) => lhs.Equals(rhs);
+        public static bool operator ==(Box3D lhs, Box3D rhs) => lhs.Equals(rhs);
 
-        public static bool operator !=(BoundingBox3D lhs, BoundingBox3D rhs) => !lhs.Equals(rhs);
+        public static bool operator !=(Box3D lhs, Box3D rhs) => !lhs.Equals(rhs);
 
         public override string ToString() => $"[X={MinX}..{MaxX}, Y={MinY}..{MaxY}, Z={MinZ}..{MaxZ}]";
     }

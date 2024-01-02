@@ -1,11 +1,4 @@
 ﻿using AdventOfCode._2023.Day22;
-using AdventOfCode.Maths.Geometry.Euclidean;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AdventOfCode.Tests._2023.Day22
 {

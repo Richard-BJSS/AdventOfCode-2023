@@ -19,7 +19,7 @@
         }
 
         public static Func<T, R> Memoize<T, R, K>(this Func<T, R> func, Func<T, K> keySelector)
-            where T : notnull
+            where K : notnull 
         {
             var d = new Dictionary<K, R>();
 

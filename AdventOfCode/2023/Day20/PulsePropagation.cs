@@ -6,7 +6,7 @@ namespace AdventOfCode._2023.Day20
     {
         private readonly HashSet<Module> _inboundModules = [];
 
-        public IReadOnlyDictionary<string, List<long>> Counters { get; set; }
+        public IReadOnlyDictionary<string, List<long>>? Counters { get; set; }
 
         public void RegisterInboundModule(Module module) => _inboundModules.Add(module);
 
@@ -101,7 +101,7 @@ namespace AdventOfCode._2023.Day20
             return new(modules);
         }
 
-        public (IReadOnlyDictionary<bool, long> Pulses, RxModule Rx) RepeatBroadcast(int numOfTimes)
+        public (IReadOnlyDictionary<bool, long> Pulses, RxModule? Rx) RepeatBroadcast(int numOfTimes)
         {
             var pulseCounter = new Dictionary<bool, long>(2) { [false] = 0, [true] = 0 };
 

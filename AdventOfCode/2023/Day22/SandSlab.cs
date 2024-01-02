@@ -27,12 +27,12 @@ namespace AdventOfCode._2023.Day22
         }
     }
 
-    public sealed class Brick(int id, BoundingBox3D boundingBox)
+    public sealed class Brick(int id, Box3D surface)
         : IEquatable<Brick>
     {
         public int Id => id;
 
-        public BoundingBox3D BoundingBox { get; set; } = boundingBox;
+        public Box3D Surface { get; set; } = surface;
 
         bool IEquatable<Brick>.Equals(Brick? other) => other?.Id == id;
 
@@ -51,12 +51,7 @@ namespace AdventOfCode._2023.Day22
 
             var bricksAtRest = new DirectedGraph<int>();
 
-            // First things first, let us sort the bricks by their lowest point on the Z plane (the plane they are falling down)
-            // We will then find it easier to find the other bricks that are touching it once ours has come to rest
-            // (we'll traverse the brick collection bottom up - resting bricks to falling bricks, and we'll wait for them to
-            // fall on top of us)
-
-            fallingBricks = fallingBricks.OrderBy(brick => brick.BoundingBox.Min(pos => pos.Z));
+            fallingBricks = fallingBricks.OrderBy(brick => brick.Surface.Min(pos => pos.Z));
 
             var q = new Queue<Brick>(fallingBricks);
 
@@ -64,21 +59,14 @@ namespace AdventOfCode._2023.Day22
             {
                 var fallingBrick = q.Dequeue();
 
-                // Check if the brick we have just taken off of the queue can 'fall' (it is not being supported 
-                // by another brick lower than it).  If so, let it drop by one unit (the force of gravity) and
-                // keep doing so until it hits another brick (or the bottom) and comes to rest.
-
-                var fallingBricksBoundary = fallingBrick.BoundingBox;
+                var fallingBricksBoundary = fallingBrick.Surface;
 
                 while (!fallingBricksBoundary.Any(pt3D => knownLocationOfRestingBricks.ContainsKey(pt3D) || pt3D.Z <= 0))
                 {
-                    fallingBrick.BoundingBox = fallingBricksBoundary;
+                    fallingBrick.Surface = fallingBricksBoundary;
 
                     fallingBricksBoundary = fallingBricksBoundary.Shift(amount: ForceOfGravity);
                 }
-
-                // Our brick has now come to rest on either the floor, or another brick.  Time to build up our graph and add all the edges
-                // that describe how our brick connects to any others that might be lying adjacent to it
 
                 foreach (var pointOnFallingBrick in fallingBricksBoundary)
                 {
@@ -88,10 +76,7 @@ namespace AdventOfCode._2023.Day22
                     }
                 }
 
-                // Last step, keep track of all the points the corners of our brick occupy, so we can use this 
-                // information to figure out the bricks resting upon it
-
-                foreach (var pointOnRestingBrick in fallingBrick.BoundingBox)
+                foreach (var pointOnRestingBrick in fallingBrick.Surface)
                 {
                     knownLocationOfRestingBricks.Add(pointOnRestingBrick, fallingBrick);
                 }

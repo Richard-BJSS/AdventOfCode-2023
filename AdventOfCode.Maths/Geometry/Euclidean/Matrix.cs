@@ -22,23 +22,23 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
 
         public T this[Point pt]
         {
-            get => _entries[pt.X - Origin.X, pt.Y - Origin.Y];
-            set => _entries[pt.X - Origin.X, pt.Y - Origin.Y] = value;
+            get => _entries[pt.X - Offset.X, pt.Y - Offset.Y];
+            set => _entries[pt.X - Offset.X, pt.Y - Offset.Y] = value;
         }
 
         public T this[(int X, int Y) pt]
         {
-            get => _entries[pt.X - Origin.X, pt.Y - Origin.Y];
-            set => _entries[pt.X - Origin.X, pt.Y - Origin.Y] = value;
+            get => _entries[pt.X - Offset.X, pt.Y - Offset.Y];
+            set => _entries[pt.X - Offset.X, pt.Y - Offset.Y] = value;
         }
 
-        public Rectangle Rectangle => new(Origin, Size);
+        public Rectangle Rectangle => new(Offset, Size);
 
         public Size Size => new(_entries.GetLength(0), _entries.GetLength(1));
 
-        public Point Origin { get; set; } = Point.Empty;
+        public Point Offset { get; set; } = Point.Empty;
 
-        public Point Centre => new((Size.Width / 2) + Origin.X, (Size.Height / 2) + Origin.Y);
+        public Point Centre => new((Size.Width / 2) + Offset.X, (Size.Height / 2) + Offset.Y);
 
         public T[] RowAt(int index) => (_jaggedEntries ??= _entries.ToJaggedArray())[index];
         public T[] ColAt(int index)
@@ -53,14 +53,14 @@ namespace AdventOfCode.Maths.Geometry.Euclidean
             return r;
         }
 
-        public T? ValueAt(Point pt) => _entries[pt.X - Origin.X, pt.Y - Origin.Y];
-        public T? ValueAt(int x, int y) => _entries[x - Origin.X, y - Origin.Y];
+        public T? ValueAt(Point pt) => _entries[pt.X - Offset.X, pt.Y - Offset.Y];
+        public T? ValueAt(int x, int y) => _entries[x - Offset.X, y - Offset.Y];
 
         public T[][] Rotate90CW() => _entries.Rotate90CW();
         public T[][] Rotate90CCW() => _entries.Rotate90CCW();
 
-        IEnumerator<(Point Point, T Value)> IEnumerable<(Point Point, T Value)>.GetEnumerator() => new MatrixEnumerator(_entries, Origin);
+        IEnumerator<(Point Point, T Value)> IEnumerable<(Point Point, T Value)>.GetEnumerator() => new MatrixEnumerator(_entries, Offset);
 
-        IEnumerator IEnumerable.GetEnumerator() => new MatrixEnumerator(_entries, Origin);
+        IEnumerator IEnumerable.GetEnumerator() => new MatrixEnumerator(_entries, Offset);
     }
 }
